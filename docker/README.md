@@ -77,19 +77,25 @@ cd Gaffer/docker
 ~/start-accumulo.sh
 ```
 
-6. To disconnect from accumulo container:
+6. Optionally open firefox to show accumulo stats:
+
+```
+~/open-firefox.sh
+```
+
+7. To disconnect from accumulo container:
 
 ```
 Ctrl-p  Ctrl-q
 ```
 
-7. To reattach to accumulo container run the attach script as your user:
+8. To reattach to accumulo container run the attach script as your user:
 
 ```
 ./attach-accumulo.sh
 ```
 
-8. To restart accumulo, run the stop and start scripts as your user:
+9. To restart accumulo, run the stop and start scripts as your user:
 
 ```
 ./stop.sh

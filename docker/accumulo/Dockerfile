@@ -95,6 +95,7 @@ RUN cd ${INSTALL_DIR}/accumulo && ./bin/build_native_library.sh
 # configured as a single cluster
 
 USER hduser
+ADD ${ACCUMULO_LOCN_FILES}/accumulo-env.sh ${INSTALL_DIR}/accumulo/conf/a
 ADD ${ACCUMULO_LOCN_FILES}/accumulo-metrics.xml ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/accumulo.policy.example ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/auditLog.xml ${INSTALL_DIR}/accumulo/conf/
@@ -112,13 +113,12 @@ ADD ${ACCUMULO_LOCN_FILES}/tracers ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/accumulo-site.xml ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/start-accumulo.sh /home/hduser/
 ADD ${ACCUMULO_LOCN_FILES}/stop-accumulo.sh /home/hduser/
+ADD ${ACCUMULO_LOCN_FILES}/open-firefox.sh /home/hduser/
 
 ADD ${ACCUMULO_LOCN_FILES}/gaffer2-setup.sh /home/hduser/
 RUN mkdir -p  ${INSTALL_DIR}/accumulo/logs  
 
 USER root
-
-
 
 RUN \
     chown hduser:hadoop ${INSTALL_DIR}/accumulo/logs && \
@@ -131,6 +131,7 @@ RUN \
     chmod +x /home/hduser/start-zookeeper.sh && \
     chmod +x /home/hduser/start-accumulo.sh && \
     chmod +x /home/hduser/stop-accumulo.sh && \
+    chmod +x /home/hduser/open-firefox.sh && \
     chmod +x /home/hduser/gaffer2-setup.sh  && \ 
     chmod 1777 tmp
 
