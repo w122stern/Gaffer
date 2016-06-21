@@ -71,6 +71,8 @@ ADD ${SETUP_LOCN_FILES}/bashrc ${DOCKER_FILES}/
 ADD ${SETUP_LOCN_FILES}/ssh_config ${DOCKER_FILES}/
 
 USER root
+RUN chown hduser:hadoop ${DOCKER_FILES}/bashrc
+RUN chown hduser:hadoop ${DOCKER_FILES}/ssh_config
 
 # Configure passwordless ssh for hduser 
 
@@ -123,24 +125,24 @@ RUN \
     chmod +x /home/hduser/start-hadoop.sh && \
     chmod +x /home/hduser/stop-hadoop.sh && \
     chmod +x /home/hduser/run-wordcount.sh && \
-    chown -R hduser:hadoop $INSTALL_DIR/hadoop-2.6.0  && \ 
-    chown hduser:hadoop /home/hduser/run-wordcount.sh && \
-    chown hduser:hadoop /home/hduser/start-hadoop.sh && \
-    chown hduser:hadoop /home/hduser/stop-hadoop.sh && \
+    chown -R hduser:hadoop $INSTALL_DIR/hadoop-2.6.0  && \
+    chown -R hduser:hadoop $INSTALL_DIR/hadoop && \
+    chown -R hduser:hadoop /home/hduser && \
+    chown -R hduser:hadoop /config && \
+    chown -R hduser:hadoop /etc/supervisord.conf && \
     chmod 1777 tmp
 
 # Hdfs ports
-# Mapred ports
-# Yarn ports
-# Other ports
-EXPOSE 50010 50020 50070 50075 50090 8020 9000 \
-       19888 \
-       8030 8031 8032 8033 8040 8042 8088 \
-       49707 2122
+EXPOSE 50010 50020 50070 50075 50090 8020 9000
 
-RUN chown -R hduser:hadoop /config
-RUN chown -R hduser:hadoop /etc/supervisord.conf
-RUN chown -R hduser:hadoop /home/hduser
+# Mapred ports
+EXPOSE 19888
+
+#Yarn ports
+EXPOSE 8030 8031 8032 8033 8040 8042 8088
+
+#Other ports
+EXPOSE 49707 2122
 
 USER hduser
 RUN mkdir -p $HADOOP_DATANODE

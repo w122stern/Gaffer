@@ -26,7 +26,7 @@ SUPERVISOR_PARAMS='-c /etc/supervisord.conf'
 # mkdir -p /data/conf /data/run /data/logs
 # chmod 777 /data/conf /data/run /data/logs
 
-if [ "$(ls /config/init/)" ]; then
+if [ "$(ls /config/init/ 2>/dev/null)" ]; then
   for init in /config/init/*.sh; do
     . $init
   done

@@ -95,7 +95,7 @@ RUN cd ${INSTALL_DIR}/accumulo && ./bin/build_native_library.sh
 # configured as a single cluster
 
 USER hduser
-ADD ${ACCUMULO_LOCN_FILES}/accumulo-env.sh ${INSTALL_DIR}/accumulo/conf/a
+ADD ${ACCUMULO_LOCN_FILES}/accumulo-env.sh ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/accumulo-metrics.xml ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/accumulo.policy.example ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/auditLog.xml ${INSTALL_DIR}/accumulo/conf/
