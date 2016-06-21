@@ -21,7 +21,7 @@
 # hadoop image
 ###################################################################
 
-FROM gaffer-docker/centos6:hadoop 
+FROM gaffer-docker/hadoop
 
 # Dockerfile metadata
 
@@ -56,7 +56,7 @@ RUN chown hduser:hadoop ${INSTALL_DIR}
 
 USER hduser
 # Install zookeeper.
-# Accumulo uses zookeeper for coordinating settings betwen its processes
+# Accumulo uses zookeeper for coordinating settings between its processes
 # and for other configuration information
 
 ADD ${ZOOKEEPER_LOCN_FILES}/zoo.cfg ${DOCKER_FILES}/
@@ -64,8 +64,13 @@ ADD ${ZOOKEEPER_LOCN_FILES}/log4j.properties ${DOCKER_FILES}/
 ADD ${ZOOKEEPER_LOCN_FILES}/zkEnv.sh ${DOCKER_FILES}/
 ADD ${ZOOKEEPER_LOCN_FILES}/zkServer.sh ${DOCKER_FILES}/
 
-RUN curl https://archive.apache.org/dist/zookeeper/zookeeper-3.3.5/zookeeper-3.3.5.tar.gz | tar -xz -C /opt/
+RUN curl http://archive.apache.org/dist/zookeeper/zookeeper-3.3.5/zookeeper-3.3.5.tar.gz | tar -xz -C /opt/
 RUN cd ${INSTALL_DIR} && ln -s ./zookeeper-3.3.5 zookeeper
+
+USER root
+RUN chown -R hduser:hadoop ${DOCKER_FILES}
+
+USER hduser
 RUN cp -pf ${DOCKER_FILES}/zoo.cfg ${INSTALL_DIR}/zookeeper/conf/.
 RUN cp -pf ${DOCKER_FILES}/log4j.properties ${INSTALL_DIR}/zookeeper/conf/.
 RUN cp -pf ${DOCKER_FILES}/zkEnv.sh ${INSTALL_DIR}/zookeeper/bin/.
@@ -78,7 +83,7 @@ RUN mkdir -p ${INSTALL_DIR}/zookeeper/walogs
 # Install accumulo
 
 ADD ${ACCUMULO_LOCN_FILES}/accumulo_supervisord.conf /etc/supervisor.d/accumulo_supervisord.conf
-RUN curl https://archive.apache.org/dist/accumulo/1.6.4/accumulo-1.6.4-bin.tar.gz | tar -xz -C /opt/
+RUN curl http://archive.apache.org/dist/accumulo/1.6.4/accumulo-1.6.4-bin.tar.gz | tar -xz -C /opt/
 RUN cd ${INSTALL_DIR} && ln -s ./accumulo-1.6.4 accumulo
 
 USER root
@@ -90,7 +95,6 @@ RUN cd ${INSTALL_DIR}/accumulo && ./bin/build_native_library.sh
 # configured as a single cluster
 
 USER hduser
-ADD ${ACCUMULO_LOCN_FILES}/accumulo-env.sh ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/accumulo-metrics.xml ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/accumulo.policy.example ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/auditLog.xml ${INSTALL_DIR}/accumulo/conf/
@@ -123,6 +127,7 @@ RUN \
     chown hduser:hadoop ${INSTALL_DIR}/zookeeper/logs && \
     chown hduser:hadoop ${INSTALL_DIR}/zookeeper/data && \
     chown hduser:hadoop ${INSTALL_DIR}/zookeeper/walogs && \
+    chown -R hduser:hadoop /home/hduser && \
     chmod +x /home/hduser/start-zookeeper.sh && \
     chmod +x /home/hduser/start-accumulo.sh && \
     chmod +x /home/hduser/stop-accumulo.sh && \

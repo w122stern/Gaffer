@@ -3,7 +3,7 @@ PROXY_ARGS="--build-arg HTTP_PROXY=$http_proxy --build-arg http_proxy=$http_prox
 
 echo "Bulding base"
 cd $DIR/base
-docker build --rm -t gaffer-docker/centos6:base -f Dockerfile.centos6 $PROXY_ARGS .
+docker build --rm -t gaffer-docker/base $PROXY_ARGS .
 echo "Completed building base"
 
 cd $DIR

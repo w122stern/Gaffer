@@ -1,0 +1,2 @@
+./startGaffer.sh
+./startAccumulo.sh

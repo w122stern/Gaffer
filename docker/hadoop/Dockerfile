@@ -18,11 +18,11 @@
 # Creates Base Image for pseudo distributed hadoop 
 #
 # The image inherits the dependency packages required for
-# the installation of hadoop from the gaffer-docker/centos:base
+# the installation of hadoop from the gaffer-docker/base
 # image
 ###################################################################
 
-FROM gaffer-docker/centos6:base
+FROM gaffer-docker/base
 
 # Dockerfile metadata
 
@@ -87,9 +87,6 @@ mkdir -p /home/hduser/.ssh  && \
       chown -R hduser:hadoop /home/hduser/.ssh && \
       chown -R hduser:hadoop /opt/jvm/java
  
-
-
- 
 USER hduser
 
 # Configure JAVA
@@ -106,7 +103,7 @@ ENV HADOOP_TMP_DIR /app/hadoop/tmp
 RUN curl http://www.eu.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz | tar -xz -C /opt/
 
 RUN cd ${INSTALL_DIR} && ln -s ./hadoop-2.6.0 hadoop
-RUN mv ${DOCKER_FILES}/bashrc /home/hduser/.bashrc 
+RUN mv ${DOCKER_FILES}/bashrc /home/hduser/.bashrc
 ADD ${HADOOP_LOCN_FILES}/hadoop-env.sh  ${INSTALL_DIR}/hadoop/etc/hadoop/ 
 ADD ${HADOOP_LOCN_FILES}/core-site.xml ${INSTALL_DIR}/hadoop/etc/hadoop/ 
 ADD ${HADOOP_LOCN_FILES}/hdfs-site.xml ${INSTALL_DIR}/hadoop/etc/hadoop/ 
@@ -133,18 +130,20 @@ RUN \
     chmod 1777 tmp
 
 # Hdfs ports
-EXPOSE 50010 50020 50070 50075 50090 8020 9000
 # Mapred ports
-EXPOSE 19888
-#Yarn ports
-EXPOSE 8030 8031 8032 8033 8040 8042 8088
+# Yarn ports
+# Other ports
+EXPOSE 50010 50020 50070 50075 50090 8020 9000 \
+       19888 \
+       8030 8031 8032 8033 8040 8042 8088 \
+       49707 2122
 
-
-#Other ports
-EXPOSE 49707 2122 
-
+RUN chown -R hduser:hadoop /config
+RUN chown -R hduser:hadoop /etc/supervisord.conf
+RUN chown -R hduser:hadoop /home/hduser
 
 USER hduser
 RUN mkdir -p $HADOOP_DATANODE
 RUN mkdir -p $HADOOP_NAMENODE
 RUN mkdir -p $HADOOP_TMP_DIR
+

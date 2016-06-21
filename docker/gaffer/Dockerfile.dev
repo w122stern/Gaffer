@@ -24,7 +24,7 @@
 #######################################################################
 
 
-FROM gaffer-docker/centos6:base
+FROM gaffer-docker/base
 
 # Dockerfile metadata
 

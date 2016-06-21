@@ -24,7 +24,7 @@
 #######################################################################
 
 
-FROM gaffer-docker/centos6:base 
+FROM gaffer-docker/base
 
 # Dockerfile metadata
 
@@ -56,21 +56,14 @@ ENV SETUP_LOCN_DIR setup_files
 # Clones gaffer source directory and runs a clean install - this will download a lot of dependencies but this step will be cached so shouldn't have to run it again.
 # This has been split out into modules so if one fails we don't need to redownload all the previous dependencies again!
 RUN git clone https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git  ${INSTALL_DIR};
-RUN cd ${INSTALL_DIR} && /usr/local/maven/bin/mvn clean install -N -DskipTests;
-RUN cd ${INSTALL_DIR}/gaffer-core && /usr/local/maven/bin/mvn clean install -DskipTests;
-RUN cd ${INSTALL_DIR}/simple-function-library && /usr/local/maven/bin/mvn clean install -DskipTests;
-RUN cd ${INSTALL_DIR}/simple-operation-library && /usr/local/maven/bin/mvn clean install -DskipTests;
-RUN cd ${INSTALL_DIR}/simple-serialisation-library && /usr/local/maven/bin/mvn clean install -DskipTests;
-RUN cd ${INSTALL_DIR}/gaffer-integration-tests && /usr/local/maven/bin/mvn clean install -DskipTests;
-RUN cd ${INSTALL_DIR}/array-list-store && /usr/local/maven/bin/mvn clean install -DskipTests;
-RUN cd ${INSTALL_DIR}/accumulo-store && /usr/local/maven/bin/mvn clean install -DskipTests;
-RUN cd ${INSTALL_DIR}/rest-api && /usr/local/maven/bin/mvn clean install -DskipTests;
-RUN cd ${INSTALL_DIR}/example && /usr/local/maven/bin/mvn clean install -DskipTests;
+RUN cd ${INSTALL_DIR} && /usr/local/maven/bin/mvn install -N -DskipTests;
+RUN cd ${INSTALL_DIR}/gaffer-core && /usr/local/maven/bin/mvn install -DskipTests
+RUN cd ${INSTALL_DIR} && /usr/local/maven/bin/mvn install -pl \!tinkerpop -DskipTests
 
 # Calls the script which sets the properties in the accumulo example files to ensure output is written to accumulo
 # Generates the jar file using maven
 # Creates a jar file containing jar files required to run the gaffer example gaffer
-# Removes naven and the gaffer source directory
+# Removes maven and the gaffer source directory
     
 ADD ${SETUP_LOCN_DIR}/configure_store_prop.sh ${INSTALL_DIR}/
 

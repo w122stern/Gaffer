@@ -77,10 +77,10 @@ RUN \
 
 RUN curl http://www.eu.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz | tar -xz -C /usr/local/
 RUN cd /usr/local && ln -s ./apache-maven-3.3.9 maven
-RUN export PATH=${PATH}:/usr/local/maven/bin
+RUN export M2_HOME=/usr/local/maven
+RUN export PATH=${M2_HOME}/bin:${PATH}
 
 RUN if [[ $http_proxy ]]; then export proxy_length=$((${#http_proxy})); export http_proxy_host=`echo $http_proxy | cut -c 8-$(($proxy_length -5))`; export http_proxy_port=`echo $http_proxy | cut -c $(($proxy_length -3))-$proxy_length`; sed -i "/<proxies>/a\    <proxy>\n      <active>true</active>\n      <protocol>http</protocol>\n      <host>$http_proxy_host</host>\n      <port>$http_proxy_port</port>\n    </proxy>" /usr/local/maven/conf/settings.xml; fi;
-
 
 # Sets up passwordless ssh by generating ssh keys
 # so hadoop, accumulo can start up services without user
@@ -130,6 +130,9 @@ RUN \
 
 ADD container-files /
 ADD ssh_service_supervisord.conf /etc/supervisor.d/ssh_service_supervisord.conf
+
+RUN chmod 755 /etc
+RUN chmod 755 /
 
 # Creates a volume called /tmp that can be shared by multiple containers.
 # The log file  used by the supervisor process control is located on this

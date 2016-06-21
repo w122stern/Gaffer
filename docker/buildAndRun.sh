@@ -1,5 +1,5 @@
 ./buildBase.sh
-./buildGafferDataVolume.sh
+./buildGaffer.sh
 ./buildHadoop.sh
 ./buildAccumulo.sh
 
