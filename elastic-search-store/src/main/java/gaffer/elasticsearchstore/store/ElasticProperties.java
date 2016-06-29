@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package gaffer.elasticsearchstore.store;
 
 import gaffer.store.StoreProperties;
-
 import java.nio.file.Path;
 
 public class ElasticProperties extends StoreProperties {
@@ -33,7 +33,7 @@ public class ElasticProperties extends StoreProperties {
         super();
     }
 
-    public ElasticProperties(final Path propertiesFileLocation){
+    public ElasticProperties(final Path propertiesFileLocation) {
         super(propertiesFileLocation);
     }
 
@@ -41,39 +41,39 @@ public class ElasticProperties extends StoreProperties {
         return get(ELASTIC_HOME);
     }
 
-    public void setElasticHome(final String elasticHome){
+    public void setElasticHome(final String elasticHome) {
         set(ELASTIC_HOME, elasticHome);
     }
 
-    public Boolean getNodeData(){
+    public Boolean getNodeData() {
         return Boolean.parseBoolean(get(NODE_DATA));
     }
 
-    public void setNodeData(final boolean nodeData){
-        set(NODE_DATA, new Boolean(nodeData).toString());
+    public void setNodeData(final boolean nodeData) {
+        set(NODE_DATA, Boolean.toString(nodeData));
     }
 
-    public String getIndexName(){
+    public String getIndexName() {
         return get(INDEX_NAME);
     }
 
-    public void setIndexName(final String indexName){
+    public void setIndexName(final String indexName) {
         set(INDEX_NAME, indexName);
     }
 
-    public String getElasticClusterAddress(){
+    public String getElasticClusterAddress() {
         return get(ELASTIC_CLUSTER_ADDRESS);
     }
 
-    public void setElasticClusterAddress(final String elasticClusterAddress){
+    public void setElasticClusterAddress(final String elasticClusterAddress) {
         set(ELASTIC_CLUSTER_ADDRESS, elasticClusterAddress);
     }
 
-    public Integer getElasticClientPort(){
-       return Integer.parseInt(get(ELASTIC_CLIENT_PORT,"9300"));
+    public Integer getElasticClientPort() {
+        return Integer.parseInt(get(ELASTIC_CLIENT_PORT, "9300"));
     }
 
-    public void setElasticClientPort(int elasticClientPort){
-        set(ELASTIC_CLIENT_PORT,new Integer(elasticClientPort).toString());
+    public void setElasticClientPort(final int elasticClientPort) {
+        set(ELASTIC_CLIENT_PORT, Integer.toString(elasticClientPort));
     }
 }

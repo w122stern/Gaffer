@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package gaffer.elasticsearchstore.store.handler;
 
 import gaffer.data.element.Element;
@@ -25,19 +26,17 @@ import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class GetElementsFromQueryObjectHandler implements OperationHandler<GetElementsFromQueryObject, Iterable<Element>> {
 
     @Override
-    public Iterable<Element> doOperation(GetElementsFromQueryObject operation, Context context, Store store) throws OperationException {
+    public Iterable<Element> doOperation(final GetElementsFromQueryObject operation, final Context context, final Store store) throws OperationException {
         return getElementsFromSearch(operation, (ElasticStore) store);
     }
 
@@ -45,19 +44,19 @@ public class GetElementsFromQueryObjectHandler implements OperationHandler<GetEl
 
         SearchResponse searchResponse;
         QueryBuilder queryBuilder;
-        try{
+        try {
             queryBuilder = (QueryBuilder) operation.getQueryObject();
-        }catch(ClassCastException e){
+        } catch (ClassCastException e) {
             throw new OperationException("Cannot recover query object from query " + e.getMessage());
         }
 
-        try{
+        try {
             searchResponse = store.getClient().prepareSearch(store.getProperties().getIndexName())
                     .setQuery(queryBuilder)
-                    //.setFrom(10).setSize(2)
+                            //.setFrom(10).setSize(2)
                     .execute()
                     .actionGet();
-        }catch(IndexNotFoundException e){
+        } catch (IndexNotFoundException e) {
             throw new OperationException("elasticSearch Index " + store.getProperties().getIndexName() + " not found. Does it exist?");
         } catch (StoreException e) {
             throw new OperationException(e.getMessage());
@@ -66,7 +65,7 @@ public class GetElementsFromQueryObjectHandler implements OperationHandler<GetEl
 
         JSONSerialiser jsonSerialiser = new JSONSerialiser();
         List<Element> result = new ArrayList<>();
-        for(SearchHit hit : searchResponse.getHits()){
+        for (SearchHit hit : searchResponse.getHits()) {
             try {
                 result.add(jsonSerialiser.deserialise(hit.source(), Element.class));
             } catch (SerialisationException e) {

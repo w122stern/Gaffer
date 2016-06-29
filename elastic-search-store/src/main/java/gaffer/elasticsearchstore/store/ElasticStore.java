@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package gaffer.elasticsearchstore.store;
 
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.elasticsearchstore.operation.GetElementsFromQueryObject;
 import gaffer.elasticsearchstore.operation.GetElementsFromQueryString;
@@ -31,27 +35,25 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
-import gaffer.store.*;
+import gaffer.store.Context;
+import gaffer.store.Store;
+import gaffer.store.StoreException;
+import gaffer.store.StoreProperties;
+import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.Schema;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.ElasticsearchClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import static gaffer.store.StoreTrait.STORE_VALIDATION;
 
 public class ElasticStore extends Store {
 
@@ -60,18 +62,19 @@ public class ElasticStore extends Store {
     private String indexName;
 
     @Override
-    public void initialise(Schema schema, StoreProperties properties) throws StoreException {
+    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         super.initialise(schema, properties);
         this.indexName = properties.get(ElasticProperties.INDEX_NAME);
     }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ElasticProperties")
     @Override
-    public ElasticProperties getProperties(){
+    public ElasticProperties getProperties() {
         return (ElasticProperties) super.getProperties();
     }
 
     public Client getClient() throws StoreException {
-        String clusterAddress =  getProperties().getElasticClusterAddress();
+        String clusterAddress = getProperties().getElasticClusterAddress();
         int clusterPort = getProperties().getElasticClientPort();
 
         try {
@@ -83,7 +86,7 @@ public class ElasticStore extends Store {
         }
     }
 
-    private void setIndex(Client client, Settings indexSettings) throws StoreException {;
+    private void setIndex(final Client client, final Settings indexSettings) throws StoreException {
         CreateIndexRequest indexRequest = new CreateIndexRequest(indexName, indexSettings);
         client.admin().indices().create(indexRequest).actionGet();
 
@@ -151,14 +154,14 @@ public class ElasticStore extends Store {
     }
 
     @Override
-    protected <OUTPUT> OUTPUT doUnhandledOperation(Operation<?, OUTPUT> operation, Context context) {
+    protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
         return null;
     }
 
     public void addElements(final Iterable<Element> elements) throws StoreException {
         Client client = getClient();
         Settings settings = Settings.builder().build();
-        setIndex(client,settings);
+        setIndex(client, settings);
         /*
         TODO
         fix this so that if the index already exists it doesn't explode
@@ -166,7 +169,7 @@ public class ElasticStore extends Store {
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         SimpleElasticElementSerialiser serialiser = new SimpleElasticElementSerialiser();
         byte[] bytes;
-        for(Element element : elements){
+        for (Element element : elements) {
             try {
                 bytes = serialiser.serialise(element);
             } catch (SerialisationException e) {
@@ -190,7 +193,7 @@ public class ElasticStore extends Store {
         */
         BulkResponse bulkResponse = bulkRequest.get();
         if (bulkResponse.hasFailures()) {
-            throw new StoreException("Problems adding data to elasticsearch" + bulkResponse.buildFailureMessage().toString());
+            throw new StoreException("Problems adding data to elasticsearch" + bulkResponse.buildFailureMessage());
         }
     }
 }
