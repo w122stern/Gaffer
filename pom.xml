@@ -35,6 +35,7 @@
         <module>gaffer-integration-tests</module>
         <module>example-rest</module>
         <module>tinkerpop</module>
+        <module>elastic-search-store</module>
     </modules>
 
     <properties>
