@@ -75,7 +75,7 @@ RUN \
     cp -pf ~/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.6.2/jackson-annotations-2.6.2.jar ${TARGET_DIR}/ && \
     cp -pf ~/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.6.2/jackson-core-2.6.2.jar ${TARGET_DIR}/ && \
     cp -pf ~/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.6.2/jackson-databind-2.6.2.jar ${TARGET_DIR}/ && \
-    find ${INSTALL_DIR} -name  '*.jar' -type f | xargs cp -t ${TARGET_DIR}/
+    find ${INSTALL_DIR} -name  '*.jar' -type f -not -path '*WEB-INF*' | xargs cp -t ${TARGET_DIR}/
 
 # Create tar file  with gaffer2 jar files
 
