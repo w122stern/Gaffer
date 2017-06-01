@@ -89,8 +89,8 @@ public class GafferToHazelcastMapTest {
 
         // When / Then - remove
         final String removeResult = wrapper.remove(key);
-        verify(map).remove(key);
-        assertEquals(value, removeResult);
+        verify(map).delete(key);
+        assertNull(removeResult);
 
         // When / Then - putAll
         wrapper.putAll(map2);

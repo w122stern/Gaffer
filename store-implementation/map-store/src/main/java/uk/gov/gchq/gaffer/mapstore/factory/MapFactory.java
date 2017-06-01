@@ -22,13 +22,13 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Map;
 
 public interface MapFactory {
-    void initialise(final MapStoreProperties properties);
+    void initialise(final Schema schema, final MapStoreProperties properties);
 
     <K, V> Map<K, V> getMap(final String mapName);
 
-    void clear();
-
     <K, V> MultiMap<K, V> getMultiMap(String mapName);
+
+    void clear();
 
     default <K, V> void updateValue(Map<K, V> map, K key, V adaptedValue) {
         // no action required.

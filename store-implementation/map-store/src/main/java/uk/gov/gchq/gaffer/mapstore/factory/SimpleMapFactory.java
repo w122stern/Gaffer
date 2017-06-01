@@ -40,7 +40,7 @@ public class SimpleMapFactory implements MapFactory {
     }
 
     @Override
-    public void initialise(final MapStoreProperties properties) {
+    public void initialise(final Schema schema, final MapStoreProperties properties) {
         final String mapClassName = properties.get(MAP_CLASS, MAP_CLASS_DEFAULT);
         try {
             mapClass = Class.forName(mapClassName).asSubclass(Map.class);

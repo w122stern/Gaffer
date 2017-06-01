@@ -57,7 +57,7 @@ public class MapImplTest {
 
         given(properties.getMapFactory()).willReturn(TestMapFactory.class.getName());
         given(properties.getCreateIndex()).willReturn(true);
-        given(mockMapFactory.getMap(MapImpl.ELEMENT_TO_PROPERTIES)).willReturn(elementToProperties);
+        given(mockMapFactory.getMap(MapImpl.AGG_ELEMENTS)).willReturn(elementToProperties);
         given(mockMapFactory.getMultiMap(MapImpl.ENTITY_ID_TO_ELEMENTS)).willReturn(entityIdToElements);
         given(mockMapFactory.getMultiMap(MapImpl.EDGE_ID_TO_ELEMENTS)).willReturn(edgeIdToElements);
 
@@ -65,10 +65,11 @@ public class MapImplTest {
         final MapImpl mapImpl = new MapImpl(schema, properties);
 
         // Then
-        verify(mockMapFactory).getMap(MapImpl.ELEMENT_TO_PROPERTIES);
+        verify(mockMapFactory).getMap(MapImpl.AGG_ELEMENTS);
+        verify(mockMapFactory).getMap(MapImpl.NON_AGG_ELEMENTS);
         verify(mockMapFactory).getMultiMap(MapImpl.ENTITY_ID_TO_ELEMENTS);
         verify(mockMapFactory).getMultiMap(MapImpl.EDGE_ID_TO_ELEMENTS);
-        assertSame(elementToProperties, mapImpl.elementToProperties);
+        assertSame(elementToProperties, mapImpl.aggElements);
         assertSame(entityIdToElements, mapImpl.entityIdToElements);
         assertSame(edgeIdToElements, mapImpl.edgeIdToElements);
     }
@@ -82,16 +83,17 @@ public class MapImplTest {
 
         given(properties.getMapFactory()).willReturn(TestMapFactory.class.getName());
         given(properties.getCreateIndex()).willReturn(false);
-        given(mockMapFactory.getMap(MapImpl.ELEMENT_TO_PROPERTIES)).willReturn(elementToProperties);
+        given(mockMapFactory.getMap(MapImpl.AGG_ELEMENTS)).willReturn(elementToProperties);
 
         // When
         final MapImpl mapImpl = new MapImpl(schema, properties);
 
         // Then
-        verify(mockMapFactory).getMap(MapImpl.ELEMENT_TO_PROPERTIES);
+        verify(mockMapFactory).getMap(MapImpl.AGG_ELEMENTS);
+        verify(mockMapFactory).getMap(MapImpl.NON_AGG_ELEMENTS);
         verify(mockMapFactory, never()).getMultiMap(MapImpl.ENTITY_ID_TO_ELEMENTS);
         verify(mockMapFactory, never()).getMultiMap(MapImpl.EDGE_ID_TO_ELEMENTS);
-        assertSame(elementToProperties, mapImpl.elementToProperties);
+        assertSame(elementToProperties, mapImpl.aggElements);
         assertNull(mapImpl.entityIdToElements);
         assertNull(mapImpl.edgeIdToElements);
     }
@@ -99,8 +101,8 @@ public class MapImplTest {
     public static final class TestMapFactory implements MapFactory {
 
         @Override
-        public void initialise(final MapStoreProperties properties) {
-            mockMapFactory.initialise(properties);
+        public void initialise(final Schema schema, final MapStoreProperties properties) {
+            mockMapFactory.initialise(schema, properties);
         }
 
         @Override

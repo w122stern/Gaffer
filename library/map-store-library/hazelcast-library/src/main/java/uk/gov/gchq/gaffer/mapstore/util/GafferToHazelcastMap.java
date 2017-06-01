@@ -32,6 +32,12 @@ public class GafferToHazelcastMap<K, V> extends MapWrapper<K, V> {
     }
 
     @Override
+    public V remove(final Object key) {
+        getMap().delete(key);
+        return null;
+    }
+
+    @Override
     protected IMap<K, V> getMap() {
         return (IMap<K, V>) super.getMap();
     }

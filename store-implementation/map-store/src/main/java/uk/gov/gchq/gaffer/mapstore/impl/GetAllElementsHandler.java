@@ -27,13 +27,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import java.util.ArrayList;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import static uk.gov.gchq.gaffer.mapstore.impl.MapImpl.COUNT;
 
 /**
  * An {@link OutputOperationHandler} for the {@link GetAllElements} operation on the {@link MapStore}.
@@ -48,43 +45,49 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
     }
 
     private CloseableIterable<Element> doOperation(final GetAllElements operation, final MapStore mapStore) {
-        return new AllElementsIterable(mapStore.getMapImpl(), operation);
+        return new AllElementsIterable(mapStore.getMapImpl(), operation, mapStore.getSchema());
     }
 
     private static class AllElementsIterable extends WrappedCloseableIterable<Element> {
         private final MapImpl mapImpl;
         private final GetAllElements getAllElements;
+        private final Schema schema;
 
-        AllElementsIterable(final MapImpl mapImpl, final GetAllElements getAllElements) {
+        AllElementsIterable(final MapImpl mapImpl, final GetAllElements getAllElements, final Schema schema) {
             this.mapImpl = mapImpl;
             this.getAllElements = getAllElements;
+            this.schema = schema;
         }
 
         @Override
         public CloseableIterator<Element> iterator() {
-            // Create stream of elements from elementToProperties by copying the properties from the value into the key
-            Stream<Element> elements = mapImpl.elementToProperties.entrySet()
+            // Create stream of elements from aggElements by copying the properties from the value into the key
+            Stream<Element> aggElements = mapImpl.aggElements.entrySet()
                     .stream()
                     .map(x -> {
                         final Element element = x.getKey();
                         final Properties properties = x.getValue();
-                        if (mapImpl.groupsWithNoAggregation.contains(x.getKey().getGroup())) {
-                            final int count = (int) properties.get(COUNT);
-                            List<Element> duplicateElements = new ArrayList<>(count);
-                            IntStream.range(0, count).forEach(i -> duplicateElements.add(element));
-                            return duplicateElements;
-                        } else {
-                            element.copyProperties(properties);
-                            return Collections.singletonList(element);
-                        }
+                        element.copyProperties(properties);
+                        return element;
+                    });
+
+            Stream<Element> nonAggElements = mapImpl.nonAggElements.entrySet()
+                    .stream()
+                    .map(x -> {
+                        final Element element = x.getKey();
+                        final int count = x.getValue();
+                        return Collections.nCopies(count, element);
                     })
-                    .flatMap(x -> x.stream());
-            final Stream<Element> elementsAfterIncludeEntitiesEdgesOption = GetElementsHandler.
-                    applyIncludeEntitiesEdgesOptions(elements, getAllElements.getView().hasEntities(),
+                    .flatMap(Collection::stream);
+
+            final Stream<Element> elements = Stream.concat(aggElements, nonAggElements);
+
+            final Stream<Element> elementsAfterIncludeEntitiesEdgesOption =
+                    GetElementsHandler.applyIncludeEntitiesEdgesOptions(elements, getAllElements.getView().hasEntities(),
                             getAllElements.getView().hasEdges(), getAllElements.getDirectedType());
             final Stream<Element> afterView = GetElementsHandler
-                    .applyView(elementsAfterIncludeEntitiesEdgesOption, mapImpl.schema, getAllElements.getView());
-            final Stream<Element> clonedElements = afterView.map(element -> mapImpl.mapFactory.cloneElement(element, mapImpl.schema));
+                    .applyView(elementsAfterIncludeEntitiesEdgesOption, schema, getAllElements.getView());
+            final Stream<Element> clonedElements = afterView.map(element -> mapImpl.mapFactory.cloneElement(element, schema));
             return new WrappedCloseableIterator<>(clonedElements.iterator());
         }
     }

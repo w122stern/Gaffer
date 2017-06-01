@@ -41,6 +41,7 @@ public class SimpleMapFactoryTest {
     public void shouldThrowExceptionIfMapClassIsInvalid() throws StoreException {
         // Given
         final Class mapClass = String.class;
+        final Schema schema = mock(Schema.class);
         final MapStoreProperties properties = mock(MapStoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
@@ -48,7 +49,7 @@ public class SimpleMapFactoryTest {
 
         // When / Then
         try {
-            factory.initialise(properties);
+            factory.initialise(schema, properties);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -59,13 +60,14 @@ public class SimpleMapFactoryTest {
     public void shouldExtractMapClassFromPropertiesWhenInitialised() throws StoreException {
         // Given
         final Class<? extends Map> mapClass = LinkedHashMap.class;
+        final Schema schema = mock(Schema.class);
         final MapStoreProperties properties = mock(MapStoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
         given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
         // When
-        factory.initialise(properties);
+        factory.initialise(schema, properties);
 
         // Then
         assertEquals(mapClass, factory.getMapClass());
@@ -75,12 +77,13 @@ public class SimpleMapFactoryTest {
     public void shouldCreateNewMapUsingMapClass() throws StoreException {
         // Given
         final Class<? extends Map> mapClass = LinkedHashMap.class;
+        final Schema schema = mock(Schema.class);
         final MapStoreProperties properties = mock(MapStoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
         given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
-        factory.initialise(properties);
+        factory.initialise(schema, properties);
 
         // When
         final Map<Object, Object> map1 = factory.getMap("mapName1");
@@ -98,12 +101,13 @@ public class SimpleMapFactoryTest {
     public void shouldThrowExceptionIfMapClassCannotBeInstantiated() throws StoreException {
         // Given
         final Class<? extends Map> mapClass = Map.class;
+        final Schema schema = mock(Schema.class);
         final MapStoreProperties properties = mock(MapStoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
         given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
-        factory.initialise(properties);
+        factory.initialise(schema, properties);
 
         // When / Then
         try {
@@ -118,12 +122,13 @@ public class SimpleMapFactoryTest {
     public void shouldCreateNewMultiMap() throws StoreException {
         // Given
         final Class<? extends Map> mapClass = LinkedHashMap.class;
+        final Schema schema = mock(Schema.class);
         final MapStoreProperties properties = mock(MapStoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
         given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
-        factory.initialise(properties);
+        factory.initialise(schema, properties);
 
         // When
         final MapOfSets<Object, Object> map1 = (MapOfSets) factory.getMultiMap("mapName1");

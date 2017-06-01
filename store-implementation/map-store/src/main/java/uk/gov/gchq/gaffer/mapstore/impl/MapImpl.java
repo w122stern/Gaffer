@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
@@ -39,43 +39,52 @@ import java.util.Set;
  * exposing the internal state of the MapStore to classes outside of this package.
  */
 public class MapImpl {
-    public static final String COUNT = "COUNT";
-    public static final String ELEMENT_TO_PROPERTIES = "elementToProperties";
+    public static final String AGG_ELEMENTS = "aggElements";
+    public static final String NON_AGG_ELEMENTS = "nonAggElements";
     public static final String ENTITY_ID_TO_ELEMENTS = "entityIdToElements";
     public static final String EDGE_ID_TO_ELEMENTS = "edgeIdToElements";
     public static final Set<String> MAP_NAMES = Collections.unmodifiableSet(
-            Collections.singleton(ELEMENT_TO_PROPERTIES));
+            Sets.newHashSet(AGG_ELEMENTS, NON_AGG_ELEMENTS));
     public static final Set<String> MULTI_MAP_NAMES = Collections.unmodifiableSet(
             Sets.newHashSet(ENTITY_ID_TO_ELEMENTS, EDGE_ID_TO_ELEMENTS));
 
     /**
-     * elementToProperties maps from an Element containing the group-by properties
+     * aggElements maps from an Element containing the group-by properties
      * to a Properties object without the group-by properties
      */
-    final Map<Element, Properties> elementToProperties;
+    final Map<Element, GroupedProperties> aggElements;
 
     /**
-     * entityIdToElements is a map from an EntityId to the element key from elementToProperties
+     * nonAggElements maps from a non aggregated Element to the count of the
+     * number of times that element has been seen.
+     */
+    final Map<Element, Integer> nonAggElements;
+
+    /**
+     * entityIdToElements is a map from an EntityId to the element key from aggElements
      */
     final MultiMap<EntityId, Element> entityIdToElements;
 
     /**
-     * edgeIdToElements is a map from an EdgeId to the element key from elementToProperties
+     * edgeIdToElements is a map from an EdgeId to the element key from aggElements
      */
     final MultiMap<EdgeId, Element> edgeIdToElements;
 
 
-    final boolean maintainIndex;
-    final Map<String, Set<String>> groupToGroupByProperties = new HashMap<>();
-    final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
-    final Set<String> groupsWithNoAggregation = new HashSet<>();
-    final Schema schema;
     final MapFactory mapFactory;
+    final boolean maintainIndex;
+
+    private final Map<String, Set<String>> groupToGroupByProperties = new HashMap<>();
+    private final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
+    private final Set<String> groupsWithNoAggregation = new HashSet<>();
+    private final Schema schema;
 
     public MapImpl(final Schema schema, final MapStoreProperties mapStoreProperties) throws StoreException {
-        mapFactory = createMapFactory(mapStoreProperties);
+        mapFactory = createMapFactory(schema, mapStoreProperties);
         maintainIndex = mapStoreProperties.getCreateIndex();
-        elementToProperties = mapFactory.getMap(ELEMENT_TO_PROPERTIES);
+        aggElements = mapFactory.getMap(AGG_ELEMENTS);
+        nonAggElements = mapFactory.getMap(NON_AGG_ELEMENTS);
+
         if (maintainIndex) {
             entityIdToElements = mapFactory.getMultiMap(ENTITY_ID_TO_ELEMENTS);
             edgeIdToElements = mapFactory.getMultiMap(EDGE_ID_TO_ELEMENTS);
@@ -84,12 +93,27 @@ public class MapImpl {
             edgeIdToElements = null;
         }
         this.schema = schema;
-        schema.getEntityGroups().forEach(g -> addToGroupByMap(this.schema, g));
-        schema.getEdgeGroups().forEach(g -> addToGroupByMap(this.schema, g));
+
+        if (schema.hasAggregators()) {
+            for (final String group : schema.getGroups()) {
+                addToGroupByMap(group);
+            }
+        } else {
+            groupsWithNoAggregation.addAll(schema.getGroups());
+        }
+    }
+
+    protected Set<String> getGroupByProperties(final String group) {
+        return groupToGroupByProperties.get(group);
+    }
+
+    protected Set<String> getNonGroupByProperties(final String group) {
+        return groupToNonGroupByProperties.get(group);
     }
 
     public void clear() {
-        elementToProperties.clear();
+        aggElements.clear();
+        nonAggElements.clear();
         groupToGroupByProperties.clear();
         groupToNonGroupByProperties.clear();
         groupsWithNoAggregation.clear();
@@ -101,7 +125,11 @@ public class MapImpl {
         mapFactory.clear();
     }
 
-    protected MapFactory createMapFactory(final MapStoreProperties mapStoreProperties) {
+    protected boolean isAggregationEnabled(final Element element) {
+        return !groupsWithNoAggregation.contains(element.getGroup());
+    }
+
+    protected MapFactory createMapFactory(final Schema schema, final MapStoreProperties mapStoreProperties) {
         final MapFactory mapFactory;
         final String factoryClass = mapStoreProperties.getMapFactory();
         if (null == factoryClass) {
@@ -114,11 +142,11 @@ public class MapImpl {
             }
         }
 
-        mapFactory.initialise(mapStoreProperties);
+        mapFactory.initialise(schema, mapStoreProperties);
         return mapFactory;
     }
 
-    private void addToGroupByMap(final Schema schema, final String group) {
+    private void addToGroupByMap(final String group) {
         final SchemaElementDefinition sed = schema.getElement(group);
         groupToGroupByProperties.put(group, sed.getGroupBy());
         if (null == sed.getGroupBy() || sed.getGroupBy().isEmpty()) {

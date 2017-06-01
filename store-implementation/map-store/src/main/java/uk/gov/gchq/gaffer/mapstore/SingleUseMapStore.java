@@ -22,8 +22,16 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 public class SingleUseMapStore extends MapStore {
     @Override
     public void initialise(final Schema schema, final StoreProperties storeProperties) throws StoreException {
-        super.initialise(schema, storeProperties);
-        getMapImpl().clear();
+        try {
+            super.initialise(schema, storeProperties);
+        } catch (final Exception e) {
+            // Ignore errors as it will be reinitialised just below.
+        }
+
+        if (null != getMapImpl()) {
+            getMapImpl().clear();
+        }
+
         super.initialise(schema, storeProperties);
     }
 }

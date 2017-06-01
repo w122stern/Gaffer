@@ -34,6 +34,6 @@ public class CountAllElementsDefaultViewHandler implements OutputOperationHandle
     }
 
     private Long doOperation(final MapStore mapStore) {
-        return (long) mapStore.getMapImpl().elementToProperties.size();
+        return (long) mapStore.getMapImpl().aggElements.size();
     }
 }

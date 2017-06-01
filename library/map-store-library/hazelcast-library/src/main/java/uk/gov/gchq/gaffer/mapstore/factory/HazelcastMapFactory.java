@@ -15,8 +15,10 @@
  */
 package uk.gov.gchq.gaffer.mapstore.factory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.FileSystemXmlConfig;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
@@ -25,10 +27,16 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.multimap.GafferToHazelcastMultiMap;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
+import uk.gov.gchq.gaffer.mapstore.serialiser.EdgeStreamSerializer;
+import uk.gov.gchq.gaffer.mapstore.serialiser.EntityStreamSerializer;
+import uk.gov.gchq.gaffer.mapstore.serialiser.GroupedPropertiesStreamSerializer;
 import uk.gov.gchq.gaffer.mapstore.util.GafferToHazelcastMap;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.File;
@@ -37,35 +45,20 @@ import java.util.Map;
 
 public class HazelcastMapFactory implements MapFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastMapFactory.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static HazelcastInstance hazelcast;
+    private static Schema schema;
 
     @SuppressFBWarnings(value = {"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "REC_CATCH_EXCEPTION"})
     @Override
-    public void initialise(final MapStoreProperties properties) {
+    public void initialise(final Schema schema, final MapStoreProperties properties) {
         if (null == hazelcast) {
-            String configFile = properties.getMapFactoryConfig();
-            if (configFile == null) {
-                hazelcast = Hazelcast.newHazelcastInstance();
-            } else if (new File(configFile).exists()) {
-                try {
-                    final Config config = new FileSystemXmlConfig(configFile);
-                    hazelcast = Hazelcast.newHazelcastInstance(config);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Could not create hazelcast instance using config path: " + configFile, e);
-                }
-            } else {
-                try (final InputStream configStream = StreamUtil.openStream(getClass(), configFile)) {
-                    final Config config = new XmlConfigBuilder(configStream).build();
-                    hazelcast = Hazelcast.newHazelcastInstance(config);
-                } catch (final Exception e) {
-                    throw new IllegalArgumentException("Could not create hazelcast instance using config resource: " + configFile, e);
-                }
-            }
-
+            HazelcastMapFactory.schema = schema;
+            hazelcast = Hazelcast.newHazelcastInstance(loadConfig(schema, properties));
             LOGGER.info("Initialised hazelcast: {}", hazelcast.getCluster().getClusterState().name());
         } else {
-            LOGGER.debug("Hazelcast had already been initialised: {}", hazelcast.getCluster().getClusterState().name());
+            updateConfig(hazelcast.getConfig(), schema);
         }
     }
 
@@ -92,8 +85,46 @@ public class HazelcastMapFactory implements MapFactory {
 
     @Override
     public void clear() {
-        for (final DistributedObject map : hazelcast.getDistributedObjects()) {
-            map.destroy();
+        if (null != hazelcast) {
+            for (final DistributedObject map : hazelcast.getDistributedObjects()) {
+                map.destroy();
+            }
         }
+    }
+
+    private Config loadConfig(final Schema schema, final MapStoreProperties properties) {
+        final String configFile = properties.getMapFactoryConfig();
+        final Config config;
+        if (configFile == null) {
+            config = new XmlConfigBuilder().build();
+        } else if (new File(configFile).exists()) {
+            try {
+                config = new FileSystemXmlConfig(configFile);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Could not create hazelcast instance using config path: " + configFile, e);
+            }
+        } else {
+            try (final InputStream configStream = StreamUtil.openStream(getClass(), configFile)) {
+                config = new XmlConfigBuilder(configStream).build();
+            } catch (final Exception e) {
+                throw new IllegalArgumentException("Could not create hazelcast instance using config resource: " + configFile, e);
+            }
+        }
+
+        updateConfig(config, schema);
+        return config;
+    }
+
+    private void updateConfig(final Config config, final Schema schema) {
+        config.getSerializationConfig()
+                .addSerializerConfig(new SerializerConfig()
+                        .setImplementation(new EntityStreamSerializer(schema))
+                        .setTypeClass(Entity.class))
+                .addSerializerConfig(new SerializerConfig()
+                        .setImplementation(new EdgeStreamSerializer(schema))
+                        .setTypeClass(Edge.class))
+                .addSerializerConfig(new SerializerConfig()
+                        .setImplementation(new GroupedPropertiesStreamSerializer(schema))
+                        .setTypeClass(GroupedProperties.class));
     }
 }
