@@ -34,19 +34,14 @@ import java.util.Iterator;
 public abstract class PropertiesSerialiser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesSerialiser.class);
     protected static final byte[] EMPTY_BYTES = new byte[0];
-    protected final Schema schema;
-    protected final ToBytesSerialiser<Object> vertexSerialiser;
+    protected Schema schema;
 
     protected PropertiesSerialiser(final Schema schema) {
-        this.schema = schema;
-        if (null == schema.getVertexSerialiser()) {
-            throw new IllegalArgumentException("Vertex serialiser must be defined in the schema");
-        }
-        if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
-            throw new IllegalArgumentException("Vertex serialiser " + schema.getVertexSerialiser().getClass().getName() + " must be an instance of " + ToBytesSerialiser.class.getName());
-        }
+        updateSchema(schema);
+    }
 
-        vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
+    public void updateSchema(final Schema schema) {
+        this.schema = schema;
     }
 
     public boolean canHandle(final Class clazz) {
@@ -180,3 +175,4 @@ public abstract class PropertiesSerialiser {
         out.write(bytes);
     }
 }
+

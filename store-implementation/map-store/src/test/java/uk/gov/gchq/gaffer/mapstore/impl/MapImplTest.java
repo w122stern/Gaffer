@@ -111,11 +111,6 @@ public class MapImplTest {
         }
 
         @Override
-        public void clear() {
-            mockMapFactory.clear();
-        }
-
-        @Override
         public <K, V> MultiMap<K, V> getMultiMap(final String mapName) {
             return mockMapFactory.getMultiMap(mapName);
         }

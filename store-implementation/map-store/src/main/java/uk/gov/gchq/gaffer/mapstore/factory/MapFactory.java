@@ -28,8 +28,6 @@ public interface MapFactory {
 
     <K, V> MultiMap<K, V> getMultiMap(String mapName);
 
-    void clear();
-
     default <K, V> void updateValue(Map<K, V> map, K key, V adaptedValue) {
         // no action required.
     }

@@ -15,12 +15,10 @@
  */
 package uk.gov.gchq.gaffer.mapstore.factory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.FileSystemXmlConfig;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.config.XmlConfigBuilder;
-import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -45,16 +43,15 @@ import java.util.Map;
 
 public class HazelcastMapFactory implements MapFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastMapFactory.class);
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
     private static HazelcastInstance hazelcast;
-    private static Schema schema;
+    private static EntityStreamSerializer entitySerializer;
+    private static EdgeStreamSerializer edgeSerializer;
+    private static GroupedPropertiesStreamSerializer propertiesSerializer;
 
     @SuppressFBWarnings(value = {"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "REC_CATCH_EXCEPTION"})
     @Override
     public void initialise(final Schema schema, final MapStoreProperties properties) {
         if (null == hazelcast) {
-            HazelcastMapFactory.schema = schema;
             hazelcast = Hazelcast.newHazelcastInstance(loadConfig(schema, properties));
             LOGGER.info("Initialised hazelcast: {}", hazelcast.getCluster().getClusterState().name());
         } else {
@@ -83,15 +80,7 @@ public class HazelcastMapFactory implements MapFactory {
         return element;
     }
 
-    @Override
-    public void clear() {
-        if (null != hazelcast) {
-            for (final DistributedObject map : hazelcast.getDistributedObjects()) {
-                map.destroy();
-            }
-        }
-    }
-
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private Config loadConfig(final Schema schema, final MapStoreProperties properties) {
         final String configFile = properties.getMapFactoryConfig();
         final Config config;
@@ -100,7 +89,7 @@ public class HazelcastMapFactory implements MapFactory {
         } else if (new File(configFile).exists()) {
             try {
                 config = new FileSystemXmlConfig(configFile);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 throw new IllegalArgumentException("Could not create hazelcast instance using config path: " + configFile, e);
             }
         } else {
@@ -116,15 +105,35 @@ public class HazelcastMapFactory implements MapFactory {
     }
 
     private void updateConfig(final Config config, final Schema schema) {
-        config.getSerializationConfig()
-                .addSerializerConfig(new SerializerConfig()
-                        .setImplementation(new EntityStreamSerializer(schema))
-                        .setTypeClass(Entity.class))
-                .addSerializerConfig(new SerializerConfig()
-                        .setImplementation(new EdgeStreamSerializer(schema))
-                        .setTypeClass(Edge.class))
-                .addSerializerConfig(new SerializerConfig()
-                        .setImplementation(new GroupedPropertiesStreamSerializer(schema))
-                        .setTypeClass(GroupedProperties.class));
+        if (null == entitySerializer) {
+            entitySerializer = new EntityStreamSerializer(schema);
+            config.getSerializationConfig()
+                    .addSerializerConfig(new SerializerConfig()
+                            .setImplementation(entitySerializer)
+                            .setTypeClass(Entity.class));
+        } else {
+            entitySerializer.updateSchema(schema);
+        }
+
+
+        if (null == edgeSerializer) {
+            edgeSerializer = new EdgeStreamSerializer(schema);
+            config.getSerializationConfig()
+                    .addSerializerConfig(new SerializerConfig()
+                            .setImplementation(edgeSerializer)
+                            .setTypeClass(Edge.class));
+        } else {
+            edgeSerializer.updateSchema(schema);
+        }
+
+        if (null == propertiesSerializer) {
+            propertiesSerializer = new GroupedPropertiesStreamSerializer(schema);
+            config.getSerializationConfig()
+                    .addSerializerConfig(new SerializerConfig()
+                            .setImplementation(propertiesSerializer)
+                            .setTypeClass(GroupedProperties.class));
+        } else {
+            propertiesSerializer.updateSchema(schema);
+        }
     }
 }

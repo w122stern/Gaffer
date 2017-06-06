@@ -28,9 +28,22 @@ import java.io.IOException;
 
 public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSerialiser<Edge> {
     private final BooleanSerialiser booleanSerialiser = new BooleanSerialiser();
+    protected ToBytesSerialiser<Object> vertexSerialiser;
 
     public EdgeSerialiser(final Schema schema) {
         super(schema);
+    }
+
+    @Override
+    public void updateSchema(final Schema schema) {
+        super.updateSchema(schema);
+        if (null == schema.getVertexSerialiser()) {
+            throw new IllegalArgumentException("Vertex serialiser must be defined in the schema");
+        }
+        if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
+            throw new IllegalArgumentException("Vertex serialiser " + schema.getVertexSerialiser().getClass().getName() + " must be an instance of " + ToBytesSerialiser.class.getName());
+        }
+        vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
     }
 
     @Override

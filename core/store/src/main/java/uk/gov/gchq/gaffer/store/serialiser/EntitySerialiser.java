@@ -26,8 +26,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class EntitySerialiser extends PropertiesSerialiser implements ToBytesSerialiser<Entity> {
+    protected ToBytesSerialiser<Object> vertexSerialiser;
+
     public EntitySerialiser(final Schema schema) {
         super(schema);
+    }
+
+    @Override
+    public void updateSchema(final Schema schema) {
+        super.updateSchema(schema);
+        if (null == schema.getVertexSerialiser()) {
+            throw new IllegalArgumentException("Vertex serialiser must be defined in the schema");
+        }
+        if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
+            throw new IllegalArgumentException("Vertex serialiser " + schema.getVertexSerialiser().getClass().getName() + " must be an instance of " + ToBytesSerialiser.class.getName());
+        }
+        vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
     }
 
     @Override

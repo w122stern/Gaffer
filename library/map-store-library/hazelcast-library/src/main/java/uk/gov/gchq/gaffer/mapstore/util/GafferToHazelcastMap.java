@@ -27,7 +27,7 @@ public class GafferToHazelcastMap<K, V> extends MapWrapper<K, V> {
     @Override
     public V put(final K key, final V value) {
         // This is more efficient.
-        getMap().set(key, value);
+        getMap().setAsync(key, value);
         return null;
     }
 

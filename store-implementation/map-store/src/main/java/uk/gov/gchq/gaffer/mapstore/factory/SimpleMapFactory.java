@@ -68,11 +68,6 @@ public class SimpleMapFactory implements MapFactory {
         return cloner.cloneElement(element, schema);
     }
 
-    @Override
-    public void clear() {
-        // no action required
-    }
-
     protected Class<? extends Map> getMapClass() {
         return mapClass;
     }

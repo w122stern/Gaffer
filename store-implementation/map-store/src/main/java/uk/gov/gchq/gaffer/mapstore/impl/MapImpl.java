@@ -121,8 +121,6 @@ public class MapImpl {
             entityIdToElements.clear();
             edgeIdToElements.clear();
         }
-
-        mapFactory.clear();
     }
 
     protected boolean isAggregationEnabled(final Element element) {

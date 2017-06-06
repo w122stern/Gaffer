@@ -59,7 +59,7 @@ public class GafferToHazelcastMapTest {
 
         // When / Then - put
         final String putResult = wrapper.put(key, value);
-        verify(map).set(key, value); // NOTE - put will call set instead as it is more efficient.
+        verify(map).setAsync(key, value); // NOTE - put will call setAsync instead as it is more efficient.
         assertNull(putResult);
 
         // When / Then - get

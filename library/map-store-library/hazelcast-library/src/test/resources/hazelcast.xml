@@ -5,6 +5,6 @@
         <password>password</password>
     </group>
     <network>
-        <port port-count="3" auto-increment="true">34562</port>
+        <port port-count="4" auto-increment="true">34562</port>
     </network>
 </hazelcast>
