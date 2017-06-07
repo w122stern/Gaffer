@@ -17,11 +17,29 @@
 package uk.gov.gchq.gaffer.mapstore.multimap;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 public interface MultiMap<K, V> {
     boolean put(K key, V value);
 
+    void put(K key, Collection<V> values);
+
     Collection<V> get(K key);
 
+    Set<K> keySet();
+
     void clear();
+
+    default void putAll(final MultiMap<K, V> map) {
+        if (map instanceof MapOfSets) {
+            for (final Map.Entry<K, Set<V>> entry : ((MapOfSets<K, V>) map).entrySet()) {
+                put(entry.getKey(), entry.getValue());
+            }
+        } else {
+            for (final K key : map.keySet()) {
+                put(key, map.get(key));
+            }
+        }
+    }
 }

@@ -50,8 +50,22 @@ public class MapOfSets<K, V> implements MultiMap<K, V> {
     }
 
     @Override
+    public void put(final K key, final Collection<V> value) {
+        multiMap.get(key).addAll(value);
+    }
+
+    @Override
     public Collection<V> get(final K key) {
         return multiMap.get(key);
+    }
+
+    @Override
+    public Set<K> keySet() {
+        return multiMap.keySet();
+    }
+
+    public Collection<Map.Entry<K, Set<V>>> entrySet() {
+        return multiMap.entrySet();
     }
 
     @Override

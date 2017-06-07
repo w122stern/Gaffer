@@ -80,6 +80,11 @@ public class HazelcastMapFactory implements MapFactory {
         return element;
     }
 
+    @Override
+    public boolean batchIngest() {
+        return true;
+    }
+
     @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private Config loadConfig(final Schema schema, final MapStoreProperties properties) {
         final String configFile = properties.getMapFactoryConfig();

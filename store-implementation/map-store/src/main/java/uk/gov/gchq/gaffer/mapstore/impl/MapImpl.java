@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.util.Collections;
@@ -70,7 +69,6 @@ public class MapImpl {
      */
     final MultiMap<EdgeId, Element> edgeIdToElements;
 
-
     final MapFactory mapFactory;
     final boolean maintainIndex;
 
@@ -79,7 +77,11 @@ public class MapImpl {
     private final Set<String> groupsWithNoAggregation = new HashSet<>();
     private final Schema schema;
 
-    public MapImpl(final Schema schema, final MapStoreProperties mapStoreProperties) throws StoreException {
+    public MapImpl(final Schema schema) {
+        this(schema, new MapStoreProperties());
+    }
+
+    public MapImpl(final Schema schema, final MapStoreProperties mapStoreProperties) {
         mapFactory = createMapFactory(schema, mapStoreProperties);
         maintainIndex = mapStoreProperties.getCreateIndex();
         aggElements = mapFactory.getMap(AGG_ELEMENTS);
@@ -114,9 +116,6 @@ public class MapImpl {
     public void clear() {
         aggElements.clear();
         nonAggElements.clear();
-        groupToGroupByProperties.clear();
-        groupToNonGroupByProperties.clear();
-        groupsWithNoAggregation.clear();
         if (maintainIndex) {
             entityIdToElements.clear();
             edgeIdToElements.clear();
@@ -153,5 +152,35 @@ public class MapImpl {
         final Set<String> nonGroupByProperties = new HashSet<>(sed.getProperties());
         nonGroupByProperties.removeAll(sed.getGroupBy());
         groupToNonGroupByProperties.put(group, nonGroupByProperties);
+    }
+
+    public void update(final MapImpl mapImpl) {
+        if (aggElements.isEmpty()) {
+            aggElements.putAll(mapImpl.aggElements);
+        } else {
+            for (final Map.Entry<Element, GroupedProperties> entry : mapImpl.aggElements.entrySet()) {
+                final GroupedProperties existingProperties = aggElements.get(entry.getKey());
+                if (null == existingProperties) {
+                    aggElements.put(entry.getKey(), entry.getValue());
+                } else {
+                    final SchemaElementDefinition elementDef = schema.getElement(existingProperties.getGroup());
+                    elementDef.getAggregator().apply(existingProperties, entry.getValue());
+                    aggElements.put(entry.getKey(), existingProperties);
+                }
+            }
+        }
+
+        if (nonAggElements.isEmpty()) {
+            nonAggElements.putAll(mapImpl.nonAggElements);
+        } else {
+            for (final Map.Entry<Element, Integer> entry : mapImpl.nonAggElements.entrySet()) {
+                nonAggElements.merge(entry.getKey(), entry.getValue(), (a, b) -> a + b);
+            }
+        }
+
+        if (maintainIndex) {
+            entityIdToElements.putAll(mapImpl.entityIdToElements);
+            edgeIdToElements.putAll(mapImpl.edgeIdToElements);
+        }
     }
 }

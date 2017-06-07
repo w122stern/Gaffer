@@ -119,5 +119,10 @@ public class MapImplTest {
         public Element cloneElement(final Element element, final Schema schema) {
             return mockMapFactory.cloneElement(element, schema);
         }
+
+        @Override
+        public boolean batchIngest() {
+            return false;
+        }
     }
 }

@@ -33,4 +33,6 @@ public interface MapFactory {
     }
 
     Element cloneElement(final Element element, final Schema schema);
+
+    boolean batchIngest();
 }

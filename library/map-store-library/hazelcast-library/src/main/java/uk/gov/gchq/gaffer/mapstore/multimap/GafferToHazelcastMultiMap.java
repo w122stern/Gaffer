@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.mapstore.multimap;
 
 import java.util.Collection;
+import java.util.Set;
 
 public class GafferToHazelcastMultiMap<K, V> implements MultiMap<K, V> {
     private final com.hazelcast.core.MultiMap<K, V> multiMap;
@@ -31,8 +32,20 @@ public class GafferToHazelcastMultiMap<K, V> implements MultiMap<K, V> {
     }
 
     @Override
+    public void put(final K key, final Collection<V> values) {
+        for (final V value : values) {
+            multiMap.put(key, value);
+        }
+    }
+
+    @Override
     public Collection<V> get(final K key) {
         return multiMap.get(key);
+    }
+
+    @Override
+    public Set<K> keySet() {
+        return multiMap.keySet();
     }
 
     @Override

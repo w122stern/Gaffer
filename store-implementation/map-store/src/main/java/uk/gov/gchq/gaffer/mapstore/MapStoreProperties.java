@@ -25,6 +25,9 @@ public class MapStoreProperties extends StoreProperties {
     public static final String CREATE_INDEX = "gaffer.store.mapstore.createIndex";
     public static final String MAP_FACTORY = "gaffer.store.mapstore.map.factory";
     public static final String MAP_FACTORY_CONFIG = "gaffer.store.mapstore.map.factory.config";
+    public static final String INGEST_BUFFER_SIZE = "gaffer.store.mapstore.map.ingest.buffer.size";
+
+    public static final int INGEST_BUFFER_SIZE_DEFAULT = 500000;
 
     public MapStoreProperties() {
         super();
@@ -70,5 +73,18 @@ public class MapStoreProperties extends StoreProperties {
 
     public void setMapFactoryConfig(final String path) {
         set(MAP_FACTORY_CONFIG, path);
+    }
+
+    public Integer getIngestBufferSize() {
+        final String size = get(INGEST_BUFFER_SIZE, null);
+        if (null == size) {
+            return INGEST_BUFFER_SIZE_DEFAULT;
+        }
+
+        return Integer.parseInt(size);
+    }
+
+    public void setIngestBufferSize(final int ingestBufferSize) {
+        set(INGEST_BUFFER_SIZE, String.valueOf(ingestBufferSize));
     }
 }
