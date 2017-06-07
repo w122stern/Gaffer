@@ -19,6 +19,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class GroupedProperties extends Properties {
+    private static final long serialVersionUID = -3424853199115841290L;
     private String group;
 
     public GroupedProperties() {
