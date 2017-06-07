@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,6 +76,7 @@ public class MapImpl {
     private final Map<String, Set<String>> groupToGroupByProperties = new HashMap<>();
     private final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
     private final Set<String> groupsWithNoAggregation = new HashSet<>();
+    final List<String> aggregatedGroups;
     private final Schema schema;
 
     public MapImpl(final Schema schema) {
@@ -96,13 +98,9 @@ public class MapImpl {
         }
         this.schema = schema;
 
-        if (schema.hasAggregators()) {
-            for (final String group : schema.getGroups()) {
-                addToGroupByMap(group);
-            }
-        } else {
-            groupsWithNoAggregation.addAll(schema.getGroups());
-        }
+        this.aggregatedGroups = schema.getAggregatedGroups();
+        schema.getEntityGroups().forEach(this::addToGroupByMap);
+        schema.getEdgeGroups().forEach(this::addToGroupByMap);
     }
 
     protected Set<String> getGroupByProperties(final String group) {
@@ -146,7 +144,7 @@ public class MapImpl {
     private void addToGroupByMap(final String group) {
         final SchemaElementDefinition sed = schema.getElement(group);
         groupToGroupByProperties.put(group, sed.getGroupBy());
-        if (null == sed.getGroupBy() || sed.getGroupBy().isEmpty()) {
+        if (null == sed.getGroupBy() || sed.getGroupBy().isEmpty() || !aggregatedGroups.contains(group)) {
             groupsWithNoAggregation.add(group);
         }
         final Set<String> nonGroupByProperties = new HashSet<>(sed.getProperties());
