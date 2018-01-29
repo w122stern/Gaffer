@@ -26,7 +26,7 @@ import java.util.List;
 public class MigrateElements extends KorypheFunction<Element, Element> {
     private String originalGroup;
     private String newGroup;
-    private ElementTransformer transformer;
+    private ElementTransformer transformFunctions;
 
     public MigrateElements() {
     }
@@ -48,13 +48,13 @@ public class MigrateElements extends KorypheFunction<Element, Element> {
     }
 
     public List<TupleAdaptedFunction<String, ?, ?>> getTransformFunctions() {
-        return null != transformer ? transformer.getComponents() : null;
+        return null != transformFunctions ? transformFunctions.getComponents() : null;
     }
 
     public void setTransformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
-        transformer = new ElementTransformer();
+        this.transformFunctions = new ElementTransformer();
         if (null != transformFunctions) {
-            transformer.getComponents().addAll(transformFunctions);
+            this.transformFunctions.getComponents().addAll(transformFunctions);
         }
     }
 
@@ -62,7 +62,7 @@ public class MigrateElements extends KorypheFunction<Element, Element> {
     public Element apply(final Element inputElement) {
         Element outputElement = inputElement;
         if (null != outputElement) {
-            outputElement = transformer.apply(inputElement);
+            outputElement = transformFunctions.apply(inputElement);
         }
         outputElement.setGroup(originalGroup);
         System.out.println("AFTER GROUP RESET BACK TO ORIGINAL FROM VIEW: " + outputElement.toString());

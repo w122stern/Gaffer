@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -37,6 +39,19 @@ public class SchemaMigrationTest extends GraphHookTest<Migration> {
     private static final Context CONTEXT = new Context(mock(User.class));
     private static final String SCHEMA_MIGRATION_PATH = "/schema/SchemaMigration.json";
     private final Migration hook = fromJson(SCHEMA_MIGRATION_PATH);
+    private final View viewBeforeMigration = new View.Builder()
+            .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                    .properties(TestPropertyNames.PROP_2)
+                    .build())
+            .build();
+    private final View viewAfterMigration = new View.Builder()
+            .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                    .properties(TestPropertyNames.PROP_2)
+                    .build())
+            .edge(TestGroups.EDGE_2, new ViewElementDefinition.Builder()
+                    .properties(TestPropertyNames.PROP_2)
+                    .build())
+            .build();
 
     public SchemaMigrationTest() {
         super(Migration.class);
@@ -44,21 +59,25 @@ public class SchemaMigrationTest extends GraphHookTest<Migration> {
 
     @Test
     public void test() throws URISyntaxException, OperationException {
-
+        // Given
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                        .properties("property1")
+                                        .properties(TestPropertyNames.PROP_2)
                                         .build())
                                 .build())
                         .build())
                 .build();
 
+        // Then
+        JsonAssert.assertEquals(viewBeforeMigration.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
+
         // When
-        System.out.println("VIEW BEFORE: " + ((OperationView) opChain.getOperations().get(0)).getView());
         hook.preExecute(opChain, CONTEXT);
-        System.out.println("VIEW AFTER: " + ((OperationView) opChain.getOperations().get(0)).getView());
+
+        // Then
+        JsonAssert.assertEquals(viewAfterMigration.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
     }
 
     @Override

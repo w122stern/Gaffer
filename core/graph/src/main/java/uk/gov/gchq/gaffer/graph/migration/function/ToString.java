@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.graph.migration.functions;
+package uk.gov.gchq.gaffer.graph.migration.function;
 
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-public class ToLong extends KorypheFunction<Object, Long> {
-
+public class ToString extends KorypheFunction<Object, String> {
     @Override
-    public Long apply(final Object value) {
+    public String apply(final Object value) {
         if (null == value) {
             return null;
         }
 
-        if (value instanceof Number) {
-            return ((Number) value).longValue();
-        }
-
-        if (value instanceof String) {
-            return Long.valueOf(((String) value));
-        }
-
-        throw new IllegalArgumentException("Could not convert value to Long: " + value);
+        return value.toString();
     }
 }

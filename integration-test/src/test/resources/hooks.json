@@ -1,109 +1,25 @@
 [
   {
-    "class": "uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain",
-    "after": {
-      "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds": [
-        {
-          "class": "uk.gov.gchq.gaffer.operation.impl.Map",
-          "functions": [
-            {
-              "class": "uk.gov.gchq.koryphe.impl.function.IterableFunction",
-              "functions": [
-                {
-                  "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
-                  "originalGroup": "BasicEdge",
-                  "newGroup": "BasicEdge2",
-                  "transformFunctions": [
-                    {
-                      "selection": [
-                        "property1"
-                      ],
-                      "function": {
-                        "class": "uk.gov.gchq.gaffer.graph.migration.functions.ToLong"
-                      },
-                      "projection": [
-                        "property1"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "uk.gov.gchq.gaffer.operation.impl.get.GetElements": [
-        {
-          "class": "uk.gov.gchq.gaffer.operation.impl.Map",
-          "functions": [
-            {
-              "class": "uk.gov.gchq.koryphe.impl.function.IterableFunction",
-              "functions": [
-                {
-                  "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
-                  "originalGroup": "BasicEdge",
-                  "newGroup": "BasicEdge2",
-                  "transformFunctions": [
-                    {
-                      "selection": [
-                        "property1"
-                      ],
-                      "function": {
-                        "class": "uk.gov.gchq.gaffer.graph.migration.functions.ToLong"
-                      },
-                      "projection": [
-                        "property1"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": [
-        {
-          "class": "uk.gov.gchq.gaffer.operation.impl.Map",
-          "functions": [
-            {
-              "class": "uk.gov.gchq.koryphe.impl.function.IterableFunction",
-              "functions": [
-                {
-                  "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
-                  "originalGroup": "BasicEdge",
-                  "newGroup": "BasicEdge2",
-                  "transformFunctions": [
-                    {
-                      "selection": [
-                        "property1"
-                      ],
-                      "function": {
-                        "class": "uk.gov.gchq.gaffer.graph.migration.functions.ToLong"
-                      },
-                      "projection": [
-                        "property1"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
     "class": "uk.gov.gchq.gaffer.graph.hook.Migration",
     "migrations": {
       "edges": [
         {
-          "class": "uk.gov.gchq.gaffer.graph.migration.SchemaMapping",
-          "currentGroup": "BasicEdge",
+          "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
+          "originalGroup": "BasicEdge",
           "newGroup": "BasicEdge2",
-          "selection": "property1",
-          "projection": "property1"
+          "transformFunctions": [
+            {
+              "function": {
+                "class": "uk.gov.gchq.gaffer.graph.migration.function.ToLong"
+              },
+              "selection": [
+                "property1"
+              ],
+              "projection": [
+                "property1"
+              ]
+            }
+          ]
         }
       ]
     }

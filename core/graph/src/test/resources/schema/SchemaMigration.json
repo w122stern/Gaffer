@@ -3,11 +3,44 @@
   "migrations": {
     "edges": [
       {
-        "class": "uk.gov.gchq.gaffer.graph.migration.SchemaMapping",
-        "currentGroup": "BasicEdge",
+        "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
+        "originalGroup": "BasicEdge",
         "newGroup": "BasicEdge2",
-        "selection": "property1",
-        "projection": "property1"
+        "transformFunctions": [
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.graph.migration.function.ToLong"
+            },
+            "selection": [
+              "property1"
+            ],
+            "projection": [
+              "property1"
+            ]
+          },
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.graph.migration.function.ToString"
+            },
+            "selection": [
+              "property1"
+            ],
+            "projection": [
+              "property2"
+            ]
+          },
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.graph.migration.function.ToUpperCase"
+            },
+            "selection": [
+              "property2"
+            ],
+            "projection": [
+              "property2"
+            ]
+          }
+        ]
       }
     ]
   }

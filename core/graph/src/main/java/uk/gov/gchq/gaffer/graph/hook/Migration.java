@@ -20,22 +20,31 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.migration.SchemaMapping;
+import uk.gov.gchq.gaffer.graph.migration.MigrateElements;
+import uk.gov.gchq.gaffer.graph.migration.function.ToLong;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @JsonPropertyOrder(alphabetic = true)
 public class Migration implements GraphHook {
-    private Map<String, List<SchemaMapping>> migrations = new HashMap<>();
+    private Map<String, List<MigrateElements>> migrations = new HashMap<>();
+    private uk.gov.gchq.gaffer.operation.impl.Map map = new uk.gov.gchq.gaffer.operation.impl.Map();
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
+        updateMappings();
+        addPostExecuteMappingsToOpChain(opChain, context);
         for (Operation op : opChain.getOperations()) {
             if (op instanceof OperationView) {
                 updateView((OperationView) op);
@@ -53,12 +62,39 @@ public class Migration implements GraphHook {
         return result;
     }
 
-    public void setMigrations(final Map<String, List<SchemaMapping>> migrations) {
+    public void setMigrations(final Map<String, List<MigrateElements>> migrations) {
         this.migrations = migrations;
     }
 
-    public final Map<String, List<SchemaMapping>> getMigrations() {
+    public final Map<String, List<MigrateElements>> getMigrations() {
         return migrations;
+    }
+
+    public void setMap(final uk.gov.gchq.gaffer.operation.impl.Map map) {
+        this.map = map;
+    }
+
+    public uk.gov.gchq.gaffer.operation.impl.Map getMap() {
+        return map;
+    }
+
+    private void updateMappings() {
+        map.setFunction(new ToLong());
+    }
+
+    private void addPostExecuteMappingsToOpChain(final OperationChain<?> opChain, final Context context) {
+        AddOperationsToChain addPostExecutionMapToChain = new AddOperationsToChain();
+        Map<String, List<Operation>> additionalOpsMap = new HashMap<>();
+
+        List<Operation> additionalOps = new ArrayList<>();
+        additionalOps.add(new uk.gov.gchq.gaffer.operation.impl.Map<>());
+
+        additionalOpsMap.put(GetElements.class.getName(), additionalOps);
+        additionalOpsMap.put(GetAllElements.class.getName(), additionalOps);
+        additionalOpsMap.put(GetAdjacentIds.class.getName(), additionalOps);
+
+        addPostExecutionMapToChain.setAfter(additionalOpsMap);
+        addPostExecutionMapToChain.preExecute(opChain, context);
     }
 
     private final void updateView(final OperationView op) {
@@ -66,19 +102,31 @@ public class Migration implements GraphHook {
             final View currentView = op.getView();
             final View.Builder newViewBuilder = new View.Builder();
             for (String elementType : migrations.keySet()) {
-                List<SchemaMapping> elementSchemaMapping = migrations.get(elementType);
+                List<MigrateElements> elementSchemaMapping = migrations.get(elementType);
                 if (elementType.equals("edges")) {
-                    for (SchemaMapping mapping : elementSchemaMapping) {
-                        if (currentView.getElement(mapping.getCurrentGroup()) != null) {
-                            newViewBuilder.edge(mapping.getCurrentGroup(), new ViewElementDefinition.Builder().properties(mapping.getSelection()).build());
-                            newViewBuilder.edge(mapping.getNewGroup(), new ViewElementDefinition.Builder().properties(mapping.getProjection()).build());
+                    for (MigrateElements mapping : elementSchemaMapping) {
+                        if (currentView.getElement(mapping.getOriginalGroup()) != null) {
+                            for (TupleAdaptedFunction<String, ?, ?> function : mapping.getTransformFunctions()) {
+                                for (String selection : function.getSelection()) {
+                                    newViewBuilder.edge(mapping.getOriginalGroup(), new ViewElementDefinition.Builder().properties(selection).build());
+                                }
+                                for (String projection : function.getProjection()) {
+                                    newViewBuilder.edge(mapping.getNewGroup(), new ViewElementDefinition.Builder().properties(projection).build());
+                                }
+                            }
                         }
                     }
                 } else if (elementType.equals("entities")) {
-                    for (SchemaMapping mapping : elementSchemaMapping) {
-                        if (currentView.getElement(mapping.getCurrentGroup()) != null) {
-                            newViewBuilder.entity(mapping.getCurrentGroup(), new ViewElementDefinition.Builder().properties(mapping.getSelection()).build());
-                            newViewBuilder.entity(mapping.getNewGroup(), new ViewElementDefinition.Builder().properties(mapping.getProjection()).build());
+                    for (MigrateElements mapping : elementSchemaMapping) {
+                        if (currentView.getElement(mapping.getOriginalGroup()) != null) {
+                            for (TupleAdaptedFunction<String, ?, ?> function : mapping.getTransformFunctions()) {
+                                for (String selection : function.getSelection()) {
+                                    newViewBuilder.entity(mapping.getOriginalGroup(), new ViewElementDefinition.Builder().properties(selection).build());
+                                }
+                                for (String projection : function.getProjection()) {
+                                    newViewBuilder.entity(mapping.getNewGroup(), new ViewElementDefinition.Builder().properties(projection).build());
+                                }
+                            }
                         }
                     }
                 } else
