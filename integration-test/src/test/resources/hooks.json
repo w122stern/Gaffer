@@ -7,17 +7,25 @@
           "class": "uk.gov.gchq.gaffer.operation.impl.Map",
           "functions": [
             {
-              "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
-              "originalGroup": "BasicEdge",
-              "newGroup": "BasicEdge2",
-              "transformFunctions": [
+              "class": "uk.gov.gchq.koryphe.impl.function.IterableFunction",
+              "functions": [
                 {
-                  "class": "uk.gov.gchq.gaffer.graph.migration.Transform",
-                  "function": {
-                    "class": "uk.gov.gchq.gaffer.graph.migration.functions.ToLong",
-                    "selection": "property1",
-                    "projection": "property1"
-                  }
+                  "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
+                  "originalGroup": "BasicEdge",
+                  "newGroup": "BasicEdge2",
+                  "transformFunctions": [
+                    {
+                      "selection": [
+                        "property1"
+                      ],
+                      "function": {
+                        "class": "uk.gov.gchq.gaffer.graph.migration.functions.ToLong"
+                      },
+                      "projection": [
+                        "property1"
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -29,17 +37,25 @@
           "class": "uk.gov.gchq.gaffer.operation.impl.Map",
           "functions": [
             {
-              "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
-              "originalGroup": "BasicEdge",
-              "newGroup": "BasicEdge2",
-              "transformFunctions": [
+              "class": "uk.gov.gchq.koryphe.impl.function.IterableFunction",
+              "functions": [
                 {
-                  "class": "uk.gov.gchq.gaffer.graph.migration.Transform",
-                  "function": {
-                    "class": "uk.gov.gchq.gaffer.graph.migration.functions.ToLong",
-                    "selection": "property1",
-                    "projection": "property1"
-                  }
+                  "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
+                  "originalGroup": "BasicEdge",
+                  "newGroup": "BasicEdge2",
+                  "transformFunctions": [
+                    {
+                      "selection": [
+                        "property1"
+                      ],
+                      "function": {
+                        "class": "uk.gov.gchq.gaffer.graph.migration.functions.ToLong"
+                      },
+                      "projection": [
+                        "property1"
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -51,17 +67,25 @@
           "class": "uk.gov.gchq.gaffer.operation.impl.Map",
           "functions": [
             {
-              "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
-              "originalGroup": "BasicEdge",
-              "newGroup": "BasicEdge2",
-              "transformFunctions": [
+              "class": "uk.gov.gchq.koryphe.impl.function.IterableFunction",
+              "functions": [
                 {
-                  "class": "uk.gov.gchq.gaffer.graph.migration.Transform",
-                  "selection": "property1",
-                  "projection": "property1",
-                  "function": {
-                    "class": "uk.gov.gchq.gaffer.graph.migration.functions.ToLong"
-                  }
+                  "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
+                  "originalGroup": "BasicEdge",
+                  "newGroup": "BasicEdge2",
+                  "transformFunctions": [
+                    {
+                      "selection": [
+                        "property1"
+                      ],
+                      "function": {
+                        "class": "uk.gov.gchq.gaffer.graph.migration.functions.ToLong"
+                      },
+                      "projection": [
+                        "property1"
+                      ]
+                    }
+                  ]
                 }
               ]
             }

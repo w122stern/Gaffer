@@ -17,25 +17,18 @@
 package uk.gov.gchq.gaffer.graph.migration;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public class MigrateElements extends KorypheFunction<Iterable<Element>, Iterable<Element>> {
+public class MigrateElements extends KorypheFunction<Element, Element> {
     private String originalGroup;
     private String newGroup;
-    private List<Transform> transformFunctions;
+    private ElementTransformer transformer;
 
     public MigrateElements() {
-
-    }
-
-    public MigrateElements(final String originalGroup, final String newGroup, final List<Transform> transformFunctions) {
-        this.originalGroup = originalGroup;
-        this.newGroup = newGroup;
-        this.transformFunctions = transformFunctions;
     }
 
     public void setOriginalGroup(String originalGroup) {
@@ -54,40 +47,25 @@ public class MigrateElements extends KorypheFunction<Iterable<Element>, Iterable
         return newGroup;
     }
 
-    public void setTransformFunctions(final List<Transform> transformFunctions) {
-        this.transformFunctions = transformFunctions;
+    public List<TupleAdaptedFunction<String, ?, ?>> getTransformFunctions() {
+        return null != transformer ? transformer.getComponents() : null;
     }
 
-    public List<Transform> getTransformFunctions() {
-        return transformFunctions;
+    public void setTransformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
+        transformer = new ElementTransformer();
+        if (null != transformFunctions) {
+            transformer.getComponents().addAll(transformFunctions);
+        }
     }
 
     @Override
-    public Iterable<Element> apply(final Iterable<Element> inputElements) {
-        Iterable<Element> elements = inputElements;
-        for (Transform transformFunction : transformFunctions) {
-            Class clazz;
-            Constructor con;
-            KorypheFunction migrationFunction;
-            try {
-                clazz = Class.forName(transformFunction.getFunction().getClass().getName());
-                con = clazz.getConstructor(String.class, String.class);
-            } catch (final ClassNotFoundException | NoSuchMethodException e) {
-                throw new IllegalArgumentException("Class " + transformFunction.getFunction().getClass().getName() + " failed" + e);
-            }
-            try {
-                migrationFunction = (KorypheFunction) con.newInstance(transformFunction.getSelection(), transformFunction.getProjection());
-            } catch (final InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new IllegalArgumentException("Class " + transformFunction.getFunction().getClass().getName() + " failed");
-            }
-            if (null != migrationFunction) {
-                elements = (Iterable<Element>) migrationFunction.apply(elements);
-            }
+    public Element apply(final Element inputElement) {
+        Element outputElement = inputElement;
+        if (null != outputElement) {
+            outputElement = transformer.apply(inputElement);
         }
-        for (Element e : elements) {
-            e.setGroup(originalGroup);
-            System.out.println("AFTER GROUP RESET BACK TO ORIGINAL FROM VIEW: " + e.toString());
-        }
-        return elements;
+        outputElement.setGroup(originalGroup);
+        System.out.println("AFTER GROUP RESET BACK TO ORIGINAL FROM VIEW: " + outputElement.toString());
+        return outputElement;
     }
 }

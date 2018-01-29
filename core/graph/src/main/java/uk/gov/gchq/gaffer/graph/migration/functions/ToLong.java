@@ -16,46 +16,24 @@
 
 package uk.gov.gchq.gaffer.graph.migration.functions;
 
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-public class ToLong extends KorypheFunction<Iterable<Element>, Iterable<Element>> {
-    private String selection;
-    private String projection;
-
-
-    public ToLong() {
-    }
-
-    public ToLong(final String selection, final String projection) {
-        this.selection = selection;
-        this.projection = projection;
-    }
+public class ToLong extends KorypheFunction<Object, Long> {
 
     @Override
-    public Iterable<Element> apply(final Iterable<Element> elementList) {
-        for (Element e : elementList) {
-            String propertyValue = e.getProperty(selection).toString();
-            e.getProperties().remove(selection);
-            e.putProperty(projection, Long.parseLong(propertyValue));
-            System.out.println("AFTER TO LONG: " + e.toString());
+    public Long apply(final Object value) {
+        if (null == value) {
+            return null;
         }
-        return elementList;
-    }
 
-    public String getSelection() {
-        return selection;
-    }
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
+        }
 
-    public void setSelection(final String selection) {
-        this.selection = selection;
-    }
+        if (value instanceof String) {
+            return Long.valueOf(((String) value));
+        }
 
-    public String getProjection() {
-        return projection;
-    }
-
-    public void setProjection(final String projection) {
-        this.projection = projection;
+        throw new IllegalArgumentException("Could not convert value to Long: " + value);
     }
 }
