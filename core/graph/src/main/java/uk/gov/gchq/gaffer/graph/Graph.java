@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.hook.Migration;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -856,12 +857,16 @@ public final class Graph {
         private void updateGraphHooks(final GraphConfig config) {
             boolean hasNamedOpHook = false;
             boolean hasNamedViewHook = false;
+            boolean hasMigrationHook = false;
             for (final GraphHook graphHook : config.getHooks()) {
                 if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
                     hasNamedOpHook = true;
                 }
                 if (NamedViewResolver.class.isAssignableFrom(graphHook.getClass())) {
                     hasNamedViewHook = true;
+                }
+                if(Migration.class.isAssignableFrom(graphHook.getClass())){
+                    hasMigrationHook = true;
                 }
             }
             if (!hasNamedViewHook) {
@@ -871,6 +876,9 @@ public final class Graph {
                 if (store.isSupported(NamedOperation.class)) {
                     config.getHooks().add(0, new NamedOperationResolver());
                 }
+            }
+            if(!hasMigrationHook) {
+                config.getHooks().add(0, new Migration());
             }
         }
 

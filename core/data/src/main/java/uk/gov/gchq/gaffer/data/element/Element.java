@@ -154,7 +154,7 @@ public abstract class Element implements ElementId {
      *
      * @param group the group.
      */
-    void setGroup(final String group) {
+    public void setGroup(final String group) {
         this.group = group;
     }
 

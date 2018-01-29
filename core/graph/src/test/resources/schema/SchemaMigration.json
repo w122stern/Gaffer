@@ -1,0 +1,14 @@
+{
+  "class": "uk.gov.gchq.gaffer.graph.hook.Migration",
+  "migrations": {
+    "edges": [
+      {
+        "class": "uk.gov.gchq.gaffer.graph.migration.SchemaMapping",
+        "currentGroup": "BasicEdge",
+        "newGroup": "BasicEdge2",
+        "selection": "property1",
+        "projection": "property1"
+      }
+    ]
+  }
+}
