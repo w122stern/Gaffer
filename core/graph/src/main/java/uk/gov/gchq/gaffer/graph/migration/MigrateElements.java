@@ -21,9 +21,10 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class MigrateElements extends KorypheFunction<Element, Element> {
+public class MigrateElements extends KorypheFunction<Iterable<Element>, Iterable<Element>> {
     private String originalGroup;
     private String newGroup;
     private ElementTransformer transformFunctions;
@@ -59,13 +60,17 @@ public class MigrateElements extends KorypheFunction<Element, Element> {
     }
 
     @Override
-    public Element apply(final Element inputElement) {
-        Element outputElement = inputElement;
-        if (null != outputElement) {
-            outputElement = transformFunctions.apply(inputElement);
+    public Iterable<Element> apply(final Iterable<Element> inputElements) {
+        List<Element> outputElements = new ArrayList<>();
+
+        if (null != inputElements) {
+            inputElements.forEach(element -> outputElements.add(transformFunctions.apply(element)));
         }
-        outputElement.setGroup(originalGroup);
-        System.out.println("AFTER GROUP RESET BACK TO ORIGINAL FROM VIEW: " + outputElement.toString());
-        return outputElement;
+
+        for (Element e : outputElements) {
+            e.setGroup(originalGroup);
+        }
+
+        return outputElements;
     }
 }

@@ -34,10 +34,10 @@ import java.net.URISyntaxException;
 
 import static org.mockito.Mockito.mock;
 
-public class SchemaMigrationTest extends GraphHookTest<Migration> {
+public class MigrationTest extends GraphHookTest<Migration> {
 
     private static final Context CONTEXT = new Context(mock(User.class));
-    private static final String SCHEMA_MIGRATION_PATH = "/schema/SchemaMigration.json";
+    private static final String SCHEMA_MIGRATION_PATH = "/schema/migration.json";
     private final Migration hook = fromJson(SCHEMA_MIGRATION_PATH);
     private final View viewBeforeMigration = new View.Builder()
             .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -53,7 +53,7 @@ public class SchemaMigrationTest extends GraphHookTest<Migration> {
                     .build())
             .build();
 
-    public SchemaMigrationTest() {
+    public MigrationTest() {
         super(Migration.class);
     }
 

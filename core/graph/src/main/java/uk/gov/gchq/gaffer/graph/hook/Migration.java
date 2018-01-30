@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.migration.MigrateElements;
-import uk.gov.gchq.gaffer.graph.migration.function.ToLong;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
@@ -32,6 +31,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +79,14 @@ public class Migration implements GraphHook {
     }
 
     private void updateMappings() {
-        map.setFunction(new ToLong());
+        //IterableFunction iterableFunction = new IterableFunction();
+        Collection<List<MigrateElements>> migrationsList = migrations.values();
+        List<MigrateElements> migrateElementsList = new ArrayList<>();
+        for(List<MigrateElements> migrateElements : migrationsList){
+            migrateElementsList.addAll(migrateElements);
+        }
+        //iterableFunction.setFunctions(migrateElementsList);
+         map.setFunctions(migrateElementsList);
     }
 
     private void addPostExecuteMappingsToOpChain(final OperationChain<?> opChain, final Context context) {
@@ -87,7 +94,7 @@ public class Migration implements GraphHook {
         Map<String, List<Operation>> additionalOpsMap = new HashMap<>();
 
         List<Operation> additionalOps = new ArrayList<>();
-        additionalOps.add(new uk.gov.gchq.gaffer.operation.impl.Map<>());
+        additionalOps.add(map);
 
         additionalOpsMap.put(GetElements.class.getName(), additionalOps);
         additionalOpsMap.put(GetAllElements.class.getName(), additionalOps);
