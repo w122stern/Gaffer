@@ -61,12 +61,14 @@ public class MigrationIT extends AbstractStoreIT {
                     .source(TestTypes.ID_STRING)
                     .destination(TestTypes.ID_STRING)
                     .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
+                    .property(TestPropertyNames.PROP_2, TestTypes.PROP_STRING)
                     .aggregate(false)
                     .build())
             .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                     .source(TestTypes.ID_STRING)
                     .destination(TestTypes.ID_STRING)
                     .property(TestPropertyNames.PROP_1, TestTypes.PROP_LONG)
+                    .property(TestPropertyNames.PROP_2, TestTypes.PROP_STRING)
                     .aggregate(false)
                     .build())
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -80,6 +82,10 @@ public class MigrationIT extends AbstractStoreIT {
             .type(TestTypes.PROP_LONG, new TypeDefinition.Builder()
                     .clazz(Long.class)
                     .description(LONG_TYPE_DESCRIPTION)
+                    .build())
+            .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .description(STRING_TYPE_DESCRIPTION)
                     .build())
             .build();
 
@@ -128,6 +134,7 @@ public class MigrationIT extends AbstractStoreIT {
                 .dest("dest")
                 .directed(true)
                 .property(TestPropertyNames.PROP_1, 7)
+                .property(TestPropertyNames.PROP_2, "test")
                 .build();
 
         final Edge edge2 = new Edge.Builder()

@@ -18,6 +18,17 @@
               "projection": [
                 "property1"
               ]
+            },
+            {
+              "function": {
+                "class": "uk.gov.gchq.gaffer.graph.migration.function.ToUpperCase"
+              },
+              "selection": [
+                "property2"
+              ],
+              "projection": [
+                "property2"
+              ]
             }
           ]
         }
