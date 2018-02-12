@@ -1,16 +1,16 @@
 [
   {
-    "class": "uk.gov.gchq.gaffer.graph.hook.Migration",
+    "class": "uk.gov.gchq.gaffer.graph.hook.SchemaMigration",
     "migrations": {
       "edges": [
         {
-          "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
+          "class": "uk.gov.gchq.gaffer.operation.function.migration.MigrateElements",
           "originalGroup": "BasicEdge",
           "newGroup": "BasicEdge2",
           "transformFunctions": [
             {
               "function": {
-                "class": "uk.gov.gchq.gaffer.graph.migration.function.ToLong"
+                "class": "uk.gov.gchq.gaffer.operation.function.migration.ToLong"
               },
               "selection": [
                 "property1"
@@ -21,13 +21,24 @@
             },
             {
               "function": {
-                "class": "uk.gov.gchq.gaffer.graph.migration.function.ToUpperCase"
+                "class": "uk.gov.gchq.gaffer.operation.function.migration.ToUpperCase"
               },
               "selection": [
                 "property2"
               ],
               "projection": [
                 "property2"
+              ]
+            },
+            {
+              "function": {
+                "class": "uk.gov.gchq.gaffer.operation.function.migration.ToUpperCase"
+              },
+              "selection": [
+                "property4"
+              ],
+              "projection": [
+                "property3"
               ]
             }
           ]

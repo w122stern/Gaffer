@@ -12,9 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
 
-package uk.gov.gchq.gaffer.graph.migration;
+
+package uk.gov.gchq.gaffer.graph.dontuse;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
@@ -67,10 +68,21 @@ public class MigrateElements extends KorypheFunction<Iterable<Element>, Iterable
             inputElements.forEach(element -> outputElements.add(transformFunctions.apply(element)));
         }
 
-        for (Element e : outputElements) {
-            e.setGroup(originalGroup);
+        for (TupleAdaptedFunction function : getTransformFunctions()) {
+            for (Element e : outputElements) {
+                int x = 0;
+                for (Object projectionString : function.getProjection()) {
+                    if (e.getProperties().containsKey(projectionString)) {
+                        Object propertyValue = e.getProperty(((String) projectionString));
+                        e.getProperties().remove(projectionString);
+                        e.getProperties().put((String) function.getSelection()[x], propertyValue);
+                        x += 1;
+                    }
+                }
+                e.setGroup(originalGroup);
+            }
         }
-
         return outputElements;
     }
 }
+*/

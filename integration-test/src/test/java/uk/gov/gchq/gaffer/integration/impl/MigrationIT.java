@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +32,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -42,9 +45,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class MigrationIT extends AbstractStoreIT {
 
@@ -92,7 +100,6 @@ public class MigrationIT extends AbstractStoreIT {
     @Override
     @Before
     public void setup() throws Exception {
-
         final File graphHooks = tempFolder.newFile("hooks.json");
         FileUtils.writeLines(graphHooks, IOUtils.readLines(StreamUtil.openStream(getClass(), "hooks.json")));
 
@@ -112,19 +119,40 @@ public class MigrationIT extends AbstractStoreIT {
     public void shouldUpdateElements() throws Exception {
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                        .properties(TestPropertyNames.PROP_1)
+                        .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new IsLessThan("10"))
+                                .build())
                         .build())
                 .build();
         final GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(view)
                 .build();
 
-        final Iterable<? extends Element> results = graph.execute(getAllElements, user);
+        final Element expectedEdge1 = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("dest")
+                .directed(true)
+                .property(TestPropertyNames.PROP_1, 7L)
+                .property(TestPropertyNames.PROP_2, "TESTPROPVALUE2")
+                .build();
 
-        for (final Element result : results) {
-            Edge edge = (Edge) result;
-            System.out.println("FINAL EDGE AFTER EXECUTE: " + edge);
-        }
+        final Edge expectedEdge2 = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("dest")
+                .directed(true)
+                .property(TestPropertyNames.PROP_1, 2L)
+                .property(TestPropertyNames.PROP_2, "")
+                .build();
+
+        final Iterable<? extends Element> results = graph.execute(getAllElements, user);
+        final List<Element> resultList = Lists.newArrayList(results);
+
+        assertEquals(2, resultList.size());
+        assertThat(resultList, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2));
     }
 
     private void addElements() throws OperationException {
@@ -134,7 +162,7 @@ public class MigrationIT extends AbstractStoreIT {
                 .dest("dest")
                 .directed(true)
                 .property(TestPropertyNames.PROP_1, 7)
-                .property(TestPropertyNames.PROP_2, "test")
+                .property(TestPropertyNames.PROP_2, "testPropValue2")
                 .build();
 
         final Edge edge2 = new Edge.Builder()
@@ -143,8 +171,8 @@ public class MigrationIT extends AbstractStoreIT {
                 .dest("dest")
                 .directed(true)
                 .property(TestPropertyNames.PROP_1, 2L)
+                .property(TestPropertyNames.PROP_3, "testPropValue3")
                 .build();
-
 
         final AddElements op = new AddElements.Builder()
                 .input(edge1, edge2)

@@ -1,15 +1,15 @@
 {
-  "class": "uk.gov.gchq.gaffer.graph.hook.Migration",
+  "class": "uk.gov.gchq.gaffer.graph.hook.SchemaMigration",
   "migrations": {
     "edges": [
       {
-        "class": "uk.gov.gchq.gaffer.graph.migration.MigrateElements",
+        "class": "uk.gov.gchq.gaffer.operation.function.migration.MigrateElements",
         "originalGroup": "BasicEdge",
         "newGroup": "BasicEdge2",
         "transformFunctions": [
           {
             "function": {
-              "class": "uk.gov.gchq.gaffer.graph.migration.function.ToLong"
+              "class": "uk.gov.gchq.gaffer.operation.function.migration.ToLong"
             },
             "selection": [
               "property1"
@@ -20,7 +20,7 @@
           },
           {
             "function": {
-              "class": "uk.gov.gchq.gaffer.graph.migration.function.ToString"
+              "class": "uk.gov.gchq.gaffer.operation.function.migration.ToString"
             },
             "selection": [
               "property1"
@@ -31,13 +31,55 @@
           },
           {
             "function": {
-              "class": "uk.gov.gchq.gaffer.graph.migration.function.ToUpperCase"
+              "class": "uk.gov.gchq.gaffer.operation.function.migration.ToUpperCase"
+            },
+            "selection": [
+              "property2"
+            ],
+            "projection": [
+              "property3"
+            ]
+          }
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.function.migration.MigrateElements",
+        "originalGroup": "BasicEntity",
+        "newGroup": "BasicEntity2",
+        "transformFunctions": [
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.operation.function.migration.ToLong"
+            },
+            "selection": [
+              "property3"
+            ],
+            "projection": [
+              "property1"
+            ]
+          },
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.operation.function.migration.ToLowerCase"
             },
             "selection": [
               "property2"
             ],
             "projection": [
               "property2"
+            ]
+          },
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.operation.function.migration.ToUpperCase"
+            },
+            "selection": [
+              "property1"
+            ],
+            "projection": [
+              "property3"
             ]
           }
         ]

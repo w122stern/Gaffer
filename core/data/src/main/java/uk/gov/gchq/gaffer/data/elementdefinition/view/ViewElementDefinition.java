@@ -120,6 +120,10 @@ public class ViewElementDefinition implements ElementDefinition {
         return null == properties && (null == excludeProperties || excludeProperties.isEmpty());
     }
 
+    public boolean hasProperty(String property) {
+        return properties.contains(property);
+    }
+
     public Class<?> getTransientPropertyClass(final String propertyName) {
         return transientProperties.get(propertyName);
     }

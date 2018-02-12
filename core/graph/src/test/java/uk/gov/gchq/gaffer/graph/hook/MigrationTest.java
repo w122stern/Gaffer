@@ -34,27 +34,39 @@ import java.net.URISyntaxException;
 
 import static org.mockito.Mockito.mock;
 
-public class MigrationTest extends GraphHookTest<Migration> {
+public class MigrationTest extends GraphHookTest<SchemaMigration> {
 
     private static final Context CONTEXT = new Context(mock(User.class));
     private static final String SCHEMA_MIGRATION_PATH = "/schema/migration.json";
-    private final Migration hook = fromJson(SCHEMA_MIGRATION_PATH);
+    private final SchemaMigration hook = fromJson(SCHEMA_MIGRATION_PATH);
     private final View viewBeforeMigration = new View.Builder()
-            .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                    .properties(TestPropertyNames.PROP_2)
-                    .build())
-            .build();
-    private final View viewAfterMigration = new View.Builder()
             .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                     .properties(TestPropertyNames.PROP_2)
                     .build())
             .edge(TestGroups.EDGE_2, new ViewElementDefinition.Builder()
                     .properties(TestPropertyNames.PROP_2)
                     .build())
+            .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                    .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                    .build())
+            .build();
+    private final View viewAfterMigration = new View.Builder()
+            .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                    .properties(TestPropertyNames.PROP_2, TestPropertyNames.PROP_1)
+                    .build())
+            .edge(TestGroups.EDGE_2, new ViewElementDefinition.Builder()
+                    .properties(TestPropertyNames.PROP_2, TestPropertyNames.PROP_3)
+                    .build())
+            .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                    .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                    .build())
+            .entity(TestGroups.ENTITY_2, new ViewElementDefinition.Builder()
+                    .properties(TestPropertyNames.PROP_3, TestPropertyNames.PROP_2)
+                    .build())
             .build();
 
     public MigrationTest() {
-        super(Migration.class);
+        super(SchemaMigration.class);
     }
 
     @Test
@@ -62,11 +74,7 @@ public class MigrationTest extends GraphHookTest<Migration> {
         // Given
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
-                        .view(new View.Builder()
-                                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                        .properties(TestPropertyNames.PROP_2)
-                                        .build())
-                                .build())
+                        .view(viewBeforeMigration)
                         .build())
                 .build();
 
@@ -81,7 +89,7 @@ public class MigrationTest extends GraphHookTest<Migration> {
     }
 
     @Override
-    protected Migration getTestObject() {
+    protected SchemaMigration getTestObject() {
         return fromJson(SCHEMA_MIGRATION_PATH);
     }
 }
