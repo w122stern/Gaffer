@@ -34,12 +34,14 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -62,6 +64,14 @@ public class GetWalks implements
     private List<OperationChain<Iterable<Element>>> operations = new ArrayList<>();
     private Iterable<? extends EntityId> input;
     private Map<String, String> options;
+
+    /**
+     * A {@link Conditional}, containing a transform {@link Operation}
+     * and a {@link Predicate} against which the input will be tested,
+     * determining what should be returned.
+     */
+    private Conditional conditional;
+
     private Integer resultsLimit = 1000000;
 
     @Override
@@ -159,11 +169,16 @@ public class GetWalks implements
     @Override
     public GetWalks shallowClone() {
         List clonedOps = operations.stream().map(Output::shallowClone).collect(Collectors.toList());
-        return new GetWalks.Builder()
+        GetWalks.Builder builder = new GetWalks.Builder()
                 .input(input)
                 .operations(clonedOps)
-                .options(options)
-                .build();
+                .options(options);
+
+        if (null != conditional) {
+            builder = builder.conditional(conditional.shallowClone());
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -182,6 +197,14 @@ public class GetWalks implements
 
     public void setResultsLimit(final Integer resultsLimit) {
         this.resultsLimit = resultsLimit;
+    }
+
+    public Conditional getConditional() {
+        return conditional;
+    }
+
+    public void setConditional(Conditional conditional) {
+        this.conditional = conditional;
     }
 
     public static final class Builder
@@ -235,6 +258,33 @@ public class GetWalks implements
 
         public Builder resultsLimit(final Integer resultLimit) {
             _getOp().setResultsLimit(resultLimit);
+            return _self();
+        }
+
+        public Builder conditional(final Conditional conditional) {
+            if (null != conditional) {
+                throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
+            }
+
+            _getOp().setConditional(conditional);
+            return _self();
+        }
+
+        public Builder conditional(final Predicate predicate) {
+            if (null != predicate) {
+                throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
+            }
+
+            _getOp().setConditional(new Conditional(predicate));
+            return _self();
+        }
+
+        public Builder conditional(final Predicate predicate, final Operation transform) {
+            if ((null != predicate || null != transform)) {
+                throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
+            }
+
+            _getOp().setConditional(new Conditional(predicate, transform));
             return _self();
         }
     }
