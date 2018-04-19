@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,11 @@ import java.time.temporal.TemporalAdjuster;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 
 /**
  * Utility methods for dates and times.
@@ -55,6 +57,9 @@ public final class CommonTimeUtil {
         final long timeBucket;
 
         switch (bucket) {
+            case MILLISECOND:
+                timeBucket = dateTime.truncatedTo(MILLIS).toInstant().toEpochMilli();
+                break;
             case SECOND:
                 timeBucket = dateTime.truncatedTo(SECONDS).toInstant().toEpochMilli();
                 break;
@@ -72,6 +77,9 @@ public final class CommonTimeUtil {
                 break;
             case MONTH:
                 timeBucket = dateTime.with(firstDayOfMonth()).truncatedTo(DAYS).toInstant().toEpochMilli();
+                break;
+            case YEAR:
+                timeBucket = dateTime.with(firstDayOfYear()).truncatedTo(DAYS).toInstant().toEpochMilli();
                 break;
             default:
                 timeBucket = time;

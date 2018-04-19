@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
@@ -34,14 +35,19 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHan
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElementsHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -60,6 +66,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -168,20 +175,40 @@ public class FederatedStore extends Store {
      * @param graphAuths   the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) throws StorageException {
-        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final GraphSerialisable... graphs) throws StorageException {
+        addGraphs(graphAuths, addingUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
+    }
 
+    /**
+     * Adds graphs to the scope of FederatedStore.
+     * <p>
+     * To be used by the FederatedStore and Handlers only. Users should add
+     * graphs via the {@link AddGraph} operation.
+     * public access will be ignored if the FederatedStore denies this action
+     * at initialisation, will default to usual access with addingUserId and
+     * graphAuths
+     * </p>
+     *
+     * @param addingUserId      the adding userId
+     * @param graphs            the graph to add
+     * @param isPublic          if this class should have public access.
+     * @param disabledByDefault true if the graph should be disabled by default - requiring the graphId to be provided in queries
+     * @param graphAuths        the access auths for the graph being added
+     * @throws StorageException if unable to put graph into storage
+     */
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final boolean disabledByDefault, final GraphSerialisable... graphs) throws StorageException {
+        final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic, disabledByDefault);
         addGraphs(access, graphs);
     }
 
-    public void addGraphs(final FederatedAccess access, final Graph... graphs) throws StorageException {
-        for (final Graph graph : graphs) {
+    public void addGraphs(final FederatedAccess access, final GraphSerialisable... graphs) throws StorageException {
+        for (final GraphSerialisable graph : graphs) {
             _add(graph, access);
         }
     }
 
     @Deprecated
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final GraphSerialisable... graphs) throws StorageException {
         addGraphs(graphAuths, addingUserId, false, graphs);
     }
 
@@ -255,6 +282,10 @@ public class FederatedStore extends Store {
         return StoreTrait.ALL_TRAITS;
     }
 
+    public Set<StoreTrait> getTraits(final GetTraits getTraits, final Context context) {
+        return graphStorage.getTraits(getTraits, context);
+    }
+
     /**
      * <p>
      * Gets a collection of graph objects within FederatedStore scope from the
@@ -295,7 +326,10 @@ public class FederatedStore extends Store {
         // Override the Operations that don't have an output
         getSupportedOperations()
                 .stream()
-                .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
+                .filter(op -> !Output.class.isAssignableFrom(op)
+                        && !AddElements.class.equals(op)
+                        && !AddNamedOperation.class.equals(op)
+                        && !AddNamedView.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
 
         addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());
@@ -308,9 +342,11 @@ public class FederatedStore extends Store {
 
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
+        addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
 
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
+        addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
     }
 
     @Override
@@ -364,7 +400,7 @@ public class FederatedStore extends Store {
         return (Strings.isNullOrEmpty(value)) ? null : Sets.newHashSet(getCleanStrings(value));
     }
 
-    private void _add(final Graph newGraph, final FederatedAccess access) throws StorageException {
+    private void _add(final GraphSerialisable newGraph, final FederatedAccess access) throws StorageException {
         graphStorage.put(newGraph, access);
     }
 }
