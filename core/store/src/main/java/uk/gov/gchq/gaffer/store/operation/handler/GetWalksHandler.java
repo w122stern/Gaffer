@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.data.graph.adjacency.SimpleAdjacencyMaps;
 import uk.gov.gchq.gaffer.data.graph.entity.EntityMap;
 import uk.gov.gchq.gaffer.data.graph.entity.EntityMaps;
 import uk.gov.gchq.gaffer.data.graph.entity.SimpleEntityMaps;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
@@ -52,6 +53,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
+import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
 /**
  * An operation handler for {@link GetWalks} operations.
@@ -144,9 +148,34 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         final GraphWindow graphWindow = new GraphWindow(adjacencyMaps, entityMaps);
 
         // Track/recombine the edge objects and convert to return type
-        return Streams.toStream(originalInput)
+        Iterable<Walk> walks = Streams.toStream(originalInput)
                 .flatMap(seed -> walk(seed.getVertex(), null, graphWindow, new LinkedList<>(), new LinkedList<>(), hops).stream())
                 .collect(Collectors.toList());
+
+        if (null != getWalks.getConditional()) {
+            final Iterable<Walk> intermediate;
+            if (null == getWalks.getConditional().getTransform()) {
+                intermediate = walks;
+            } else {
+                final Operation transform = getWalks.getConditional().getTransform();
+                updateOperationInput(transform, originalInput);
+                intermediate = (Iterable<Walk>) getResultsOrNull(transform, context, store);
+            }
+            try {
+                Iterator iter = intermediate.iterator();
+                while (iter.hasNext()) {
+                    Walk w = (Walk) iter.next();
+                    if (!getWalks.getConditional().getPredicate().test(w)) {
+                        iter.remove();
+                    }
+                }
+            } catch (final ClassCastException e) {
+                final String inputType = null != originalInput ? originalInput.getClass().getSimpleName() : "null";
+                throw new OperationException("The predicate '" + getWalks.getConditional().getPredicate().getClass().getSimpleName()
+                        + "' cannot accept an input of type '" + inputType + "'");
+            }
+        }
+        return walks;
     }
 
     public Integer getMaxHops() {

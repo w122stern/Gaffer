@@ -289,7 +289,7 @@ public class GetWalks implements
         }
 
         public Builder conditional(final Conditional conditional) {
-            if (null != conditional) {
+            if (null != _getOp().conditional) {
                 throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
             }
 
@@ -298,7 +298,7 @@ public class GetWalks implements
         }
 
         public Builder conditional(final Predicate predicate) {
-            if (null != predicate) {
+            if (null != _getOp().conditional) {
                 throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
             }
 
@@ -307,7 +307,7 @@ public class GetWalks implements
         }
 
         public Builder conditional(final Predicate predicate, final Operation transform) {
-            if ((null != predicate || null != transform)) {
+            if ((null != _getOp().conditional)) {
                 throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
             }
 

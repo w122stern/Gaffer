@@ -82,6 +82,11 @@ import static org.junit.Assert.assertTrue;
 
 public class GetWalksIT extends AbstractStoreIT {
 
+    private final User user = new User();
+
+    private final EntitySeed entitySeedA = new EntitySeed("A");
+    private final EntitySeed entitySeedE = new EntitySeed("E");
+
     @Override
     @Before
     public void setup() throws Exception {
@@ -92,10 +97,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPaths() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -106,7 +107,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operation)
                 .build();
 
@@ -120,10 +121,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithWhileRepeat() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -134,7 +131,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(new While.Builder<>()
                         .operation(operation)
                         .maxRepeats(2)
@@ -151,10 +148,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithWhile() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -166,7 +159,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(new While.Builder<>()
                         .conditional(
                                 new Conditional(
@@ -188,25 +181,36 @@ public class GetWalksIT extends AbstractStoreIT {
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
     }
 
-    public static class AssertEntityIdsUnwrapped extends KorypheFunction<Object, Object> {
-        @Override
-        public Object apply(final Object obj) {
-            // Check the vertices have been extracted correctly.
-            assertTrue(obj instanceof Iterable);
-            for (final Object item : (Iterable) obj) {
-                assertFalse(item instanceof EntityId);
-            }
-            return obj;
-        }
+    @Test
+    public void shouldApplyConditionalInGetWalks() throws Exception {
+        // Given
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final GetWalks op = new Builder()
+                .input(entitySeedA)
+                .addOperations(operation)
+                .conditional(new Conditional(new IsLessThan(1, true)))
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AED,ABC")));
     }
 
     @Test
     public void shouldGetPathsWithPruning() throws Exception {
         // Given
         withPruning();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -218,7 +222,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operation)
                 .build();
 
@@ -232,12 +236,8 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldReturnNoResultsWhenNoEntityResults() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(
                         new GetElements.Builder()
                                 .view(new View.Builder()
@@ -269,11 +269,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithEntities() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
-
         final GetElements getEntities = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -291,7 +286,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(getElements, getElements, getEntities)
                 .build();
 
@@ -308,9 +303,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldThrowExceptionIfGetPathsWithHopContainingNoEdges() throws Exception {
         // Given
-        final User user = new User();
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements getEntities = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -328,7 +320,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(getElements, getEntities, getElements)
                 .build();
 
@@ -343,11 +335,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithMultipleSeeds() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed1 = new EntitySeed("A");
-        final EntitySeed seed2 = new EntitySeed("E");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -358,7 +345,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed1, seed2)
+                .input(entitySeedA, entitySeedE)
                 .operations(operation, operation)
                 .build();
 
@@ -372,10 +359,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithMultipleEdgeTypes() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -389,7 +372,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operation)
                 .build();
 
@@ -403,11 +386,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithMultipleSeedsAndMultipleEdgeTypes() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed1 = new EntitySeed("A");
-        final EntitySeed seed2 = new EntitySeed("E");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -421,7 +399,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed1, seed2)
+                .input(entitySeedA, entitySeedE)
                 .operations(operation, operation)
                 .build();
 
@@ -435,10 +413,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithLoops() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -452,7 +426,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operation, operation)
                 .build();
 
@@ -466,10 +440,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithLoops_2() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -483,7 +453,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operation, operation, operation)
                 .build();
 
@@ -497,10 +467,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithLoops_3() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -511,7 +477,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operation, operation, operation)
                 .build();
 
@@ -526,10 +492,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithPreFiltering_1() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -557,7 +519,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operationChain)
                 .build();
 
@@ -572,10 +534,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithPreFiltering_2() throws Exception {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -603,7 +561,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operationChain, operationChain)
                 .build();
 
@@ -617,10 +575,6 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithModifiedViews() throws OperationException {
         // Given
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
@@ -635,7 +589,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operation)
                 .build();
 
@@ -654,10 +608,6 @@ public class GetWalksIT extends AbstractStoreIT {
 
         withGraphHook(graphHook);
 
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -668,7 +618,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operation)
                 .build();
 
@@ -689,10 +639,6 @@ public class GetWalksIT extends AbstractStoreIT {
 
         withGraphHook(graphHook);
 
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -703,7 +649,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(entitySeedA)
                 .operations(operation, operation)
                 .build();
 
@@ -712,6 +658,18 @@ public class GetWalksIT extends AbstractStoreIT {
 
         // Then
         assertThat(getPaths(results), is(equalTo("ABC")));
+    }
+
+    public static class AssertEntityIdsUnwrapped extends KorypheFunction<Object, Object> {
+        @Override
+        public Object apply(final Object obj) {
+            // Check the vertices have been extracted correctly.
+            assertTrue(obj instanceof Iterable);
+            for (final Object item : (Iterable) obj) {
+                assertFalse(item instanceof EntityId);
+            }
+            return obj;
+        }
     }
 
     private Set<Entity> createEntitySet() {
