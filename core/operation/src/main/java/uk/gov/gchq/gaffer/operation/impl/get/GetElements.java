@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -63,12 +64,20 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Gets elements related to provided seeds")
 public class GetElements implements
         InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
         MultiElementIdInput,
         SeededGraphFilters,
         SeedMatching {
+
+    /**
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     * See filtering documentation.
+     */
     private SeedMatchingType seedMatching;
+
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
@@ -81,19 +90,27 @@ public class GetElements implements
      * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
      *                     matched to the identifiers in the graph.
      * @see SeedMatchingType
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     * See filtering documentation
+     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
      */
+    @Deprecated
     @Override
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         this.seedMatching = seedMatching;
     }
 
     /**
-     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
-     *
      * @return seedMatching a {@link SeedMatchingType} describing how the seeds should be
      * matched to the identifiers in the graph.
      * @see SeedMatchingType
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     * See filtering documentation
+     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
      */
+    @Deprecated
     @Override
     public SeedMatchingType getSeedMatching() {
         return seedMatching;

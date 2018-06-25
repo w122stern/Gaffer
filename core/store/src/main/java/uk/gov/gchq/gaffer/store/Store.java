@@ -259,7 +259,11 @@ public abstract class Store {
 
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
         if (null != storeProperties) {
-            JSONSerialiser.update(storeProperties.getJsonSerialiserClass(), storeProperties.getJsonSerialiserModules());
+            JSONSerialiser.update(
+                    storeProperties.getJsonSerialiserClass(),
+                    storeProperties.getJsonSerialiserModules(),
+                    storeProperties.getStrictJson()
+            );
         } else {
             JSONSerialiser.update();
         }
