@@ -65,6 +65,7 @@ public class StoreProperties implements Cloneable {
 
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
+    public static final String TYPE_CONSTRUCTOR_DECLARATIONS = "gaffer.store.typeconstructor.declarations";
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
 
@@ -393,6 +394,14 @@ public class StoreProperties implements Cloneable {
 
     public void setOperationDeclarationPaths(final String paths) {
         set(OPERATION_DECLARATIONS, paths);
+    }
+
+    public String getTypeConstructorDeclarationPaths(){
+        return get(TYPE_CONSTRUCTOR_DECLARATIONS);
+    }
+
+    public void setTypeConstructorDeclarationPaths(final String paths){
+        set(TYPE_CONSTRUCTOR_DECLARATIONS, paths);
     }
 
     public String getReflectionPackages() {
