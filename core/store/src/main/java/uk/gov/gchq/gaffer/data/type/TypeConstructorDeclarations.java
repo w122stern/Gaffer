@@ -16,17 +16,25 @@
 
 package uk.gov.gchq.gaffer.data.type;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class TypeConstructorDeclarations {
 
-    private Set<TypeRegistryEntry> entrySet;
+    private Set<TypeRegistryEntry> entries;
 
-    public Set<TypeRegistryEntry> getEntrySet() {
-        return entrySet;
+    public Set<TypeRegistryEntry> getEntries() {
+        return entries;
     }
 
-    public void setEntrySet(Set<TypeRegistryEntry> entrySet) {
-        this.entrySet = entrySet;
+    public void setEntries(Set<TypeRegistryEntry> entries) {
+        this.entries = entries;
+    }
+
+    public void addEntry(TypeRegistryEntry entry){
+        if(entries == null){
+            entries = new HashSet<>();
+        }
+        entries.add(entry);
     }
 }

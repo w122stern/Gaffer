@@ -1,0 +1,6 @@
+{
+  "entries" : [ {
+    "className" : "uk.gov.gchq.gaffer.time.RBMBackedTimestampSet",
+    "typeConstructorClassName" : "uk.gov.gchq.gaffer.time.typeconstructor.RBMBackedTimestampSetTypeConstructor"
+  } ]
+}

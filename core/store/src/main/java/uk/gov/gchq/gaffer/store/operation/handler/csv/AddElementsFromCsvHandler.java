@@ -74,7 +74,7 @@ public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFr
                 try {
                     String json = FileUtils.readFileToString(new File(p));
                     TypeConstructorDeclarations declarations = JSONSerialiser.deserialise(json.getBytes(), TypeConstructorDeclarations.class);
-                    for(TypeRegistryEntry entry : declarations.getEntrySet()){
+                    for(TypeRegistryEntry entry : declarations.getEntries()){
                         TypeConstructor typeConstructor = (TypeConstructor) Class.forName(entry.getTypeConstructorClassName()).newInstance();
                         if(typeConstructor.getClass().isAssignableFrom(TimeTypeConstructor.class)){
                             ((TimeTypeConstructor) typeConstructor).setTimeConfig(fieldMapping.getTimeConfig());

@@ -63,6 +63,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromCsv;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -149,6 +150,7 @@ public class StoreTest {
     private final Context context = new Context(user);
 
     private OperationHandler<AddElements> addElementsHandler;
+    private OperationHandler<AddElementsFromCsv> addElementsFromCsvHandler;
     private OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getElementsHandler;
     private OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getAllElementsHandler;
     private OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler;
@@ -467,6 +469,7 @@ public class StoreTest {
 
         final List<Class<? extends Operation>> expectedOperations = Lists.newArrayList(
                 AddElements.class,
+                AddElementsFromCsv.class,
                 GetElements.class,
                 GetAdjacentIds.class,
                 GetAllElements.class,
@@ -570,6 +573,7 @@ public class StoreTest {
 
         final List<Class<? extends Operation>> expectedOperations = Lists.newArrayList(
                 AddElements.class,
+                AddElementsFromCsv.class,
                 GetElements.class,
                 GetAdjacentIds.class,
                 GetAllElements.class,

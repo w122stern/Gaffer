@@ -16,9 +16,11 @@
 
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.koryphe.Since;
@@ -26,15 +28,9 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
-/**
- * An {@code AddElementsFromCsv} operation takes a filename, converts each
- * line of the file to a Gaffer {@link Element} using the
- * {@link CsvElementGenerator} then adds these
- * elements to the Graph.
- *
- * @see Builder
- */
+/*
 
+ */
 
 @JsonPropertyOrder(value = {"class", "filename", "mappingsFile"}, alphabetic = true)
 @Since("1.6.0")
@@ -59,13 +55,15 @@ public class AddElementsFromCsv implements
     private boolean skipInvalidElements;
     private Map<String, String> options;
 
-    public AddElementsFromCsv(){}
+    public AddElementsFromCsv() {
+
+    }
 
     public String getDelimiter() {
         return delimiter;
     }
 
-    public void setDelimiter(String delimiter) {
+    public void setDelimiter(final String delimiter) {
         this.delimiter = delimiter;
     }
 
@@ -73,7 +71,7 @@ public class AddElementsFromCsv implements
         return includeQuotes;
     }
 
-    public void setIncludeQuotes(boolean includeQuotes) {
+    public void setIncludeQuotes(final boolean includeQuotes) {
         this.includeQuotes = includeQuotes;
     }
 
@@ -81,7 +79,7 @@ public class AddElementsFromCsv implements
         return quoteChar;
     }
 
-    public void setQuoteChar(String quoteChar) {
+    public void setQuoteChar(final String quoteChar) {
         this.quoteChar = quoteChar;
     }
 
@@ -97,7 +95,7 @@ public class AddElementsFromCsv implements
         return mappingsFile;
     }
 
-    public void setMappingsFile(String mappingsFile) {
+    public void setMappingsFile(final String mappingsFile) {
         this.mappingsFile = mappingsFile;
     }
 
@@ -156,22 +154,22 @@ public class AddElementsFromCsv implements
             return _self();
         }
 
-        public Builder mappingsFile(final String mappingsFile){
+        public Builder mappingsFile(final String mappingsFile) {
             _getOp().setMappingsFile(mappingsFile);
             return _self();
         }
 
-        public Builder ignoreQuotes(final boolean ignoreQuotes){
+        public Builder ignoreQuotes(final boolean ignoreQuotes) {
             _getOp().setIncludeQuotes(ignoreQuotes);
             return _self();
         }
 
-        public Builder quoteChar(final String quoteChar){
+        public Builder quoteChar(final String quoteChar) {
             _getOp().setQuoteChar(quoteChar);
             return _self();
         }
 
-        public Builder delimiter(final String delimiter){
+        public Builder delimiter(final String delimiter) {
             _getOp().setDelimiter(delimiter);
             return _self();
         }

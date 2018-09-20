@@ -1,0 +1,42 @@
+{
+  "header" : "src,dest,timestamp",
+  "edges" : {
+    "Edge" : {
+      "source" : ["src"],
+      "destination" : ["dest"],
+      "properties" : {
+        "timebucket" : ["timestamp"],
+        "timestamps" : ["timestamp"]
+      },
+      "groupByFunctions" : {
+        "timebucket" : {
+            "bucketFunctionClassName" : "uk.gov.gchq.gaffer.store.csv.buckets.impl.LongTimeBucket",
+            "bucketSize" : "HOUR"
+        }
+      },
+      "countProperties" : ["count"],
+      "timePropertyNames" : ["timestamps","timebucket"]
+    }
+  },
+  "entities" : {
+    "Entity" : {
+      "vertex" : ["src","dest"],
+      "properties" : {
+        "timebucket" : ["timestamp","timestamp"],
+        "timestamps" : ["timestamp","timestamp"]
+      },
+      "groupByFunctions" : {
+        "timebucket" : {
+            "bucketFunctionClassName" : "uk.gov.gchq.gaffer.store.csv.buckets.impl.LongTimeBucket",
+            "bucketSize" : "HOUR"
+        }
+      },
+      "countProperties" : ["count"],
+      "timePropertyNames" : ["timestamps","timebucket"]
+    }
+  },
+  "timeConfig" : {
+    "timestampGranularity" : "SECOND",
+    "millisCorrection" : true
+  }
+}

@@ -21,6 +21,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
+import uk.gov.gchq.gaffer.data.type.TimeTypeConstructor;
+import uk.gov.gchq.gaffer.data.type.TypeConstructor;
 import uk.gov.gchq.gaffer.store.csv.fieldmapping.*;
 import uk.gov.gchq.gaffer.data.type.TypeConstructorRegistry;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -227,7 +229,11 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String> {
     private Object constructType(String input, String className) {
 
         try {
-            return typeConstructorRegistry.getTypeConstructor(className).constructType(input);
+            TypeConstructor typeConstructor =  typeConstructorRegistry.getTypeConstructor(className);
+            if(typeConstructor instanceof TimeTypeConstructor){
+                ((TimeTypeConstructor) typeConstructor).setTimeConfig(fieldMapping.getTimeConfig());
+            }
+            return typeConstructor.constructType(input);
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
         }

@@ -1,0 +1,6 @@
+{
+  "entries" : [ {
+    "className" : "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus",
+    "typeConstructorClassName" : "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.typeconstructor.HyperLogLogPlusTypeConstructor"
+  } ]
+}

@@ -1,0 +1,7 @@
+{
+  "graphId" : "test",
+  "library" : {
+    "class" : "uk.gov.gchq.gaffer.store.library.NoGraphLibrary"
+  },
+  "hooks" : [ ]
+}

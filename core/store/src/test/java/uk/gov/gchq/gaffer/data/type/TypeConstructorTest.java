@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.data.type;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.type.impl.LongTypeConstructor;
+import uk.gov.gchq.gaffer.data.type.impl.StringTypeConstructor;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.data.type.impl.FreqMapTypeConstructor;
@@ -61,6 +63,22 @@ public class TypeConstructorTest {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+
+        TypeConstructorDeclarations declarations = new TypeConstructorDeclarations();
+        TypeRegistryEntry entry1 = new TypeRegistryEntry();
+        entry1.setClassName(String.class.getCanonicalName());
+        entry1.setTypeConstructorClassName(StringTypeConstructor.class.getCanonicalName());
+        TypeRegistryEntry entry2 = new TypeRegistryEntry();
+        entry2.setClassName(Long.class.getCanonicalName());
+        entry2.setTypeConstructorClassName(LongTypeConstructor.class.getCanonicalName());
+        declarations.addEntry(entry1);
+        declarations.addEntry(entry2);
+
+        try {
+            System.out.println(new String(JSONSerialiser.serialise(declarations, true)));
+        } catch (SerialisationException e) {
             e.printStackTrace();
         }
 
