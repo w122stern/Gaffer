@@ -414,6 +414,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return null != typeName ? getTypeDef(typeName).getClazz() : null;
     }
 
+    /**
+     * @return the GroupBy Set.
+     * @deprecated User the {@code getOrderedGroupBy()} which returns a List to ensure ordering.
+     */
     public Set<String> getGroupBy() {
         return Collections.unmodifiableSet(new HashSet<>(groupBy));
     }
@@ -422,6 +426,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return groupBy;
     }
 
+    /**
+     * @return the parents Set.
+     * @deprecated Use the {@code getOrderedParents()} which returns a List to ensure ordering.
+     */
+    @Deprecated
     @JsonIgnore
     protected Set<String> getParents() {
         return Collections.unmodifiableSet(new HashSet<>(parents));
