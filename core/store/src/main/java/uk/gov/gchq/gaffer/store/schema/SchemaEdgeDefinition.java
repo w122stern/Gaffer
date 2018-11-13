@@ -23,9 +23,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  * A {@code SchemaEdgeDefinition} is the representation of a single edge in a
@@ -65,7 +65,7 @@ public class SchemaEdgeDefinition extends SchemaElementDefinition {
         }
 
         final SchemaEdgeDefinition.Builder builder = new SchemaEdgeDefinition.Builder();
-        final Set<String> parents = new LinkedHashSet<>(edgeDef.parents);
+        final List<String> parents = new ArrayList<>(edgeDef.parents);
         for (final String parent : edgeDef.parents) {
             final SchemaEdgeDefinition parentDef = getExpandedDefinition(parent);
             if (null != parentDef) {
@@ -73,7 +73,7 @@ public class SchemaEdgeDefinition extends SchemaElementDefinition {
                 parents.remove(parent);
             }
         }
-        edgeDef.parents = Collections.unmodifiableSet(parents);
+        edgeDef.parents = Collections.unmodifiableList(parents);
         builder.merge(edgeDef);
         return builder.build();
     }

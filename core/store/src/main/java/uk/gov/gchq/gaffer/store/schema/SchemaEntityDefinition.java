@@ -23,9 +23,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  * A {@code SchemaEntityDefinition} is the representation of a single entity in a
@@ -50,7 +50,7 @@ public class SchemaEntityDefinition extends SchemaElementDefinition {
         }
 
         final SchemaEntityDefinition.Builder builder = new SchemaEntityDefinition.Builder();
-        final Set<String> parents = new LinkedHashSet<>(entityDef.parents);
+        final List<String> parents = new ArrayList<>(entityDef.parents);
         for (final String parent : entityDef.parents) {
             final SchemaEntityDefinition parentDef = getExpandedDefinition(parent);
             if (null != parentDef) {
@@ -58,7 +58,7 @@ public class SchemaEntityDefinition extends SchemaElementDefinition {
                 parents.remove(parent);
             }
         }
-        entityDef.parents = Collections.unmodifiableSet(parents);
+        entityDef.parents = Collections.unmodifiableList(parents);
         builder.merge(entityDef);
         return builder.build();
     }

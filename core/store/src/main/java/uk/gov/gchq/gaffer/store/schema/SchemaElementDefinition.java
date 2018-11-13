@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -48,7 +49,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -101,8 +101,8 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      * A ordered set of property names that should be stored to allow
      * query time aggregation to group based on their values.
      */
-    protected Set<String> groupBy;
-    protected Set<String> parents;
+    protected List<String> groupBy;
+    protected List<String> parents;
     protected String description;
     protected boolean aggregate = true;
 
@@ -110,7 +110,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         this.elementDefValidator = new SchemaElementDefinitionValidator();
         properties = new LinkedHashMap<>();
         identifiers = new LinkedHashMap<>();
-        groupBy = new LinkedHashSet<>();
+        groupBy = new ArrayList<>();
         schemaReference = new Schema();
     }
 
@@ -256,7 +256,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         if (null == queryAggregator) {
             queryAggregator = new ElementAggregator();
             if (aggregate) {
-                final Set<String> mergedGroupBy = null == viewGroupBy ? groupBy : viewGroupBy;
+                final List<String> mergedGroupBy = null == viewGroupBy ? groupBy : Lists.newArrayList(viewGroupBy);
                 final Set<String> viewAggregatorProps;
                 if (null == viewAggregator) {
                     viewAggregatorProps = Collections.emptySet();
@@ -415,11 +415,20 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     public Set<String> getGroupBy() {
+        return Collections.unmodifiableSet(new HashSet<>(groupBy));
+    }
+
+    public List<String> getOrderedGroupBy() {
         return groupBy;
     }
 
     @JsonIgnore
     protected Set<String> getParents() {
+        return Collections.unmodifiableSet(new HashSet<>(parents));
+    }
+
+    @JsonIgnore
+    protected List<String> getOrderedParents() {
         return parents;
     }
 
@@ -434,7 +443,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return null;
         }
 
-        return parents;
+        return getParents();
     }
 
     public String getDescription() {
@@ -523,9 +532,9 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     @Override
     public void lock() {
         if (null != parents) {
-            parents = Collections.unmodifiableSet(parents);
+            parents = Collections.unmodifiableList(parents);
         }
-        groupBy = Collections.unmodifiableSet(groupBy);
+        groupBy = Collections.unmodifiableList(groupBy);
         properties = Collections.unmodifiableMap(properties);
         identifiers = Collections.unmodifiableMap(identifiers);
         if (null != validator) {
@@ -648,20 +657,30 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
-        public CHILD_CLASS groupBy(final String... propertyName) {
-            if (null != propertyName) {
-                Collections.addAll(elDef.getGroupBy(), propertyName);
+        public CHILD_CLASS groupBy(final String... propertyNames) {
+            if (null != propertyNames && propertyNames.length > 0) {
+                if (null == elDef.getOrderedGroupBy()) {
+                    elDef.groupBy = new ArrayList<>();
+                }
+                for (final String prop : propertyNames) {
+                    if (!elDef.getOrderedGroupBy().contains(prop)) {
+                        elDef.getOrderedGroupBy().add(prop);
+                    }
+                }
             }
             return self();
         }
 
         public CHILD_CLASS parents(final String... parents) {
             if (null != parents && parents.length > 0) {
-                if (null == elDef.parents) {
-                    elDef.parents = new LinkedHashSet<>();
+                if (null == elDef.getOrderedParents()) {
+                    elDef.parents = new ArrayList<>();
                 }
-
-                Collections.addAll(elDef.parents, parents);
+                for (final String parent : parents) {
+                    if (!elDef.getOrderedParents().contains(parent)) {
+                        elDef.getOrderedParents().add(parent);
+                    }
+                }
             }
             return self();
         }
@@ -726,11 +745,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 elDef.queryAggregatorCacheMap.clear();
 
                 if (null != elementDef.groupBy && !elementDef.groupBy.isEmpty()) {
-                    elDef.groupBy = new LinkedHashSet<>(elementDef.groupBy);
+                    elDef.groupBy = new ArrayList<>(elementDef.groupBy);
                 }
 
                 if (null != elementDef.parents && !elementDef.parents.isEmpty()) {
-                    elDef.parents = new LinkedHashSet<>(elementDef.parents);
+                    elDef.parents = new ArrayList<>(elementDef.parents);
                 }
 
                 if (null != elementDef.description) {

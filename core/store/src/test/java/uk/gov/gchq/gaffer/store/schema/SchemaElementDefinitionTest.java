@@ -33,8 +33,11 @@ import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -808,6 +811,68 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("property"));
         }
+    }
+
+    @Test
+    public void orderedGroupBysShouldBeInstanceOfListAndUnmodifiable() {
+        // Given / When
+        final T elementDef = createBuilder()
+                .groupBy("groupBy1", "groupBy2")
+                .build();
+
+        // Then
+        assertTrue(elementDef.getOrderedGroupBy() instanceof List);
+        try {
+            elementDef.getOrderedGroupBy().add("groupBy3");
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertTrue(e.getClass().equals(UnsupportedOperationException.class));
+        }
+    }
+
+    @Test
+    public void groupBysShouldBeInstanceOfSetAndUnmodifiable() {
+        // Given / When
+        final T elementDef = createBuilder()
+                .groupBy("groupBy1", "groupBy2")
+                .build();
+
+        // Then
+        assertTrue(elementDef.getGroupBy() instanceof Set);
+        try {
+            elementDef.getGroupBy().add("groupBy3");
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertTrue(e.getClass().equals(UnsupportedOperationException.class));
+        }
+    }
+
+    @Test
+    public void orderedGroupBysShouldNotAllowDuplicates() {
+        // Given / When
+        final T elementDef = createBuilder()
+                .groupBy("groupBy1", "groupBy1", "groupBy2")
+                .groupBy("groupBy1", "groupBy3")
+                .build();
+
+        // Then
+        assertTrue(elementDef.getOrderedGroupBy().size() == 3);
+        assertTrue(elementDef.getGroupBy().size() == 3);
+        assertTrue(elementDef.getOrderedGroupBy().containsAll(Arrays.asList("groupBy1", "groupBy2", "groupBy3")));
+        assertTrue(elementDef.getGroupBy().containsAll(Arrays.asList("groupBy1", "groupBy2", "groupBy3")));
+    }
+
+    @Test
+    public void groupBysShouldNotAllowDuplicates() {
+        // Given / When
+        final T elementDef = createBuilder()
+                .groupBy("groupBy1", "groupBy1", "groupBy2")
+                .groupBy("groupBy1", "groupBy3")
+                .build();
+
+        // Then
+        assertTrue(elementDef.getGroupBy().size() == 3);
+        assertTrue(elementDef.getGroupBy().containsAll(Arrays.asList("groupBy1", "groupBy2", "groupBy3")));
     }
 
     protected void setupSchema(final T elementDef) {
