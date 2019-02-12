@@ -21,6 +21,8 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -83,6 +85,69 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .then(new GenerateObjects<>())
                 .then(new DiscardOutput())
                 .then(new TestOperationsImpl(Collections.singletonList(new GetAllElements())))
+                .build();
+        final User user = new User.Builder()
+                .opAuths("SuperUser", "ReadUser", "User")
+                .build();
+
+        // When/Then
+        try {
+            hook.preExecute(opChain, new Context(user));
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldAcceptOperationChainWhenUserHasAllOpAuthsForAddNamedOperation() {
+        // Given
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}")
+                .description("Test Named Operation")
+                .name("Test")
+                .overwrite(false)
+                .parameter("testParameter", new ParameterDetail.Builder()
+                        .description("the seed")
+                        .defaultValue("seed1")
+                        .valueClass(String.class)
+                        .required(false)
+                        .build())
+                .score(2)
+                .build();
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(addNamedOperation)
+                .build();
+        final User user = new User.Builder()
+                .opAuths("SuperUser", "ReadUser", "User")
+                .build();
+
+        // When
+        hook.preExecute(opChain, new Context(user));
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldRejectOperationChainWhenUserDoesntHaveAllOpAuthsForAddNamedOperation() {
+        // Given
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}")
+                .description("Test Named Operation")
+                .name("Test")
+                .overwrite(false)
+                .parameter("testParameter", new ParameterDetail.Builder()
+                        .description("the seed")
+                        .defaultValue("seed1")
+                        .valueClass(String.class)
+                        .required(false)
+                        .build())
+                .score(2)
+                .build();
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(addNamedOperation)
                 .build();
         final User user = new User.Builder()
                 .opAuths("SuperUser", "ReadUser", "User")
