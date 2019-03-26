@@ -1,5 +1,7 @@
 package uk.gov.gchq.gaffer.operation.analytic;
 
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -17,12 +19,15 @@ import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
-
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.*;
-
-import static java.util.Objects.isNull;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
 @Since("1.0.0")

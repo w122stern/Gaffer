@@ -24,10 +24,10 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
     }
 
     /**
-     * Adds a NamedOperation to a cache which must be specified in the operation declarations file. An
-     * NamedOperationDetail is built using the fields on the AddAnalyticOperation. The operation name and operation chain
+     * Adds a AnalyticOperation to a cache which must be specified in the operation declarations file. An
+     * AnalyticOperationDetail is built using the fields on the AddAnalyticOperation. The operation name and operation chain
      * fields must be set and cannot be left empty, or the build() method will fail and a runtime exception will be
-     * thrown. The handler then adds/overwrites the NamedOperation according toa an overwrite flag.
+     * thrown. The handler then adds/overwrites the AnalyticOperation according toa an overwrite flag.
      *
      * @param operation the {@link Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
@@ -66,7 +66,7 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
             for (final Map.Entry<String, ParameterDetail> parameterDetail : analyticOperationDetail.getParameters().entrySet()) {
                 String varName = "${" + parameterDetail.getKey() + "}";
                 if (!operationString.contains(varName)) {
-                    throw new OperationException("Parameter specified in NamedOperation doesn't occur in OperationChain string for " + varName);
+                    throw new OperationException("Parameter specified in AnalyticOperation doesn't occur in OperationChain string for " + varName);
                 }
             }
         }
