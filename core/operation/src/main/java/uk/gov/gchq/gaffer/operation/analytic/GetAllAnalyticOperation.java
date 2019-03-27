@@ -43,8 +43,8 @@ public class GetAllAnalyticOperation implements
     }
 
     @Override
-    public GetAllNamedOperations shallowClone() {
-        return new GetAllNamedOperations.Builder()
+    public GetAllAnalyticOperation shallowClone() {
+        return new GetAllAnalyticOperation.Builder()
                 .options(options)
                 .build();
     }
