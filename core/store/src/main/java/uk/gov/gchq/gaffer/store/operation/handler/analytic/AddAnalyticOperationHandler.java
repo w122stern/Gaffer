@@ -64,6 +64,7 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
                     .description(operation.getDescription())
                     .parameters(operation.getParameters())
                     .score(operation.getScore())
+                    .options(operation.getOptions())
                     .build();
 
             validate(analyticOperationDetail.getOperationWithDefaultParams(), analyticOperationDetail);

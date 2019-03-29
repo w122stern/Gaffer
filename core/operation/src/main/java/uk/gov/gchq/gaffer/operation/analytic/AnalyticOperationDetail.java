@@ -50,6 +50,7 @@ public class AnalyticOperationDetail implements Serializable {
     private List<String> readAccessRoles;
     private List<String> writeAccessRoles;
     private Map<String, ParameterDetail> parameters = Maps.newHashMap();
+    private Map<String, String> options = Maps.newHashMap();
     private Integer score;
 
     public AnalyticOperationDetail() {
@@ -58,14 +59,14 @@ public class AnalyticOperationDetail implements Serializable {
     public AnalyticOperationDetail(final String operationName, final String description, final String userId,
                                    final String operations, final List<String> readers,
                                    final List<String> writers, final Map<String, ParameterDetail> parameters,
-                                   final Integer score) {
-        this(operationName, null, description, userId, operations, readers, writers, parameters, score);
+                                   final Integer score, final Map<String, String> options) {
+        this(operationName, null, description, userId, operations, readers, writers, parameters, score, options);
     }
 
     public AnalyticOperationDetail(final String operationName, final String inputType, final String description, final String userId,
                                    final String operations, final List<String> readers,
                                    final List<String> writers, final Map<String, ParameterDetail> parameters,
-                                   final Integer score) {
+                                   final Integer score, final Map<String, String> options) {
         if (null == operations) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
@@ -83,6 +84,7 @@ public class AnalyticOperationDetail implements Serializable {
         this.writeAccessRoles = writers;
         this.parameters = parameters;
         this.score = score;
+        this.options = options;
     }
 
     public String getOperationName() {
@@ -123,6 +125,10 @@ public class AnalyticOperationDetail implements Serializable {
 
     public Integer getScore() {
         return score;
+    }
+
+    public Map<String, String> getOptions() {
+        return options;
     }
 
     private String buildParamNameString(final String paramKey) {
@@ -236,6 +242,7 @@ public class AnalyticOperationDetail implements Serializable {
                 .append(writeAccessRoles, op.writeAccessRoles)
                 .append(parameters, op.parameters)
                 .append(score, op.score)
+                .append(options, op.options)
                 .isEquals();
     }
 
@@ -250,6 +257,7 @@ public class AnalyticOperationDetail implements Serializable {
                 .append(writeAccessRoles)
                 .append(parameters)
                 .append(score)
+                .append(options)
                 .hashCode();
     }
 
@@ -264,6 +272,7 @@ public class AnalyticOperationDetail implements Serializable {
                 .append("writeAccessRoles", writeAccessRoles)
                 .append("parameters", parameters)
                 .append("score", score)
+                .append("options", options)
                 .toString();
     }
 
@@ -309,6 +318,7 @@ public class AnalyticOperationDetail implements Serializable {
         private List<String> writers;
         private Map<String, ParameterDetail> parameters;
         private Integer score;
+        private Map<String, String> options;
 
         public AnalyticOperationDetail.Builder creatorId(final String creatorId) {
             this.creatorId = creatorId;
@@ -367,8 +377,13 @@ public class AnalyticOperationDetail implements Serializable {
             return this;
         }
 
+        public AnalyticOperationDetail.Builder options(final Map<String, String> options) {
+            this.options = options;
+            return this;
+        }
+
         public AnalyticOperationDetail build() {
-            return new AnalyticOperationDetail(operationName, inputType, description, creatorId, op, readers, writers, parameters, score);
+            return new AnalyticOperationDetail(operationName, inputType, description, creatorId, op, readers, writers, parameters, score, options);
         }
     }
 }
