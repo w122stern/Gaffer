@@ -16,10 +16,12 @@
 package uk.gov.gchq.gaffer.operation.analytic;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
+
 import java.util.Map;
 
 /**

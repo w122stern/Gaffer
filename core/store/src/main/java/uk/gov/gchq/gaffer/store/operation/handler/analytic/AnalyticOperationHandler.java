@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.analytic;
 
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.analytic.AnalyticOperation;
 import uk.gov.gchq.gaffer.store.Context;
@@ -24,7 +23,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
- * Operation handler for {@link NamedOperation}. Named operations are resolved by
+ * Operation handler for {@link AnalyticOperation}. Named operations are resolved by
  * the {@code NamedOperationResolver} {@code GraphHook}.
  * If this handler is invoked then it means the named operation could not be resolved.
  */

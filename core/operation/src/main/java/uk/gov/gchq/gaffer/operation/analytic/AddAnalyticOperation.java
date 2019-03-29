@@ -1,6 +1,20 @@
-package uk.gov.gchq.gaffer.operation.analytic;
+/*
+ * Copyright 2016-2019 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import static java.util.Objects.isNull;
+package uk.gov.gchq.gaffer.operation.analytic;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -8,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -19,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -28,6 +44,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Objects.isNull;
 
 @JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
 @Since("1.0.0")
@@ -81,7 +99,7 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
     @JsonIgnore
     public void setOperation(final Operation operation) {
         try {
-                this.operations = new String(JSONSerialiser.serialise(operation), Charset.forName(CHARSET_NAME));
+            this.operations = new String(JSONSerialiser.serialise(operation), Charset.forName(CHARSET_NAME));
         } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
@@ -202,7 +220,7 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
         }
 
         final Collection<Operation> operations;
-        if(op instanceof Operations){
+        if (op instanceof Operations) {
             operations = ((OperationChain) op).getOperations();
             return operations;
         } else {

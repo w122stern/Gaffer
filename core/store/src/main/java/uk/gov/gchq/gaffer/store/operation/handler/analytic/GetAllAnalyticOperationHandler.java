@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.analytic.AnalyticOperationDetail;
-import uk.gov.gchq.gaffer.operation.analytic.GetAllAnalyticOperation;
+import uk.gov.gchq.gaffer.operation.analytic.GetAllAnalyticOperations;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
@@ -31,12 +31,13 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.analytic.cache.AnalyticOperationCache;
 import uk.gov.gchq.koryphe.util.IterableUtil;
+
 import java.util.function.Function;
 
 /**
  * Operation Handler for GetAllAnalyticOperations
  */
-public class GetAllAnalyticOperationHandler implements OutputOperationHandler<GetAllAnalyticOperation, CloseableIterable<AnalyticOperationDetail>> {
+public class GetAllAnalyticOperationHandler implements OutputOperationHandler<GetAllAnalyticOperations, CloseableIterable<AnalyticOperationDetail>> {
     private final AnalyticOperationCache cache;
 
     public GetAllAnalyticOperationHandler() {
@@ -59,7 +60,7 @@ public class GetAllAnalyticOperationHandler implements OutputOperationHandler<Ge
      * @throws OperationException thrown if the cache has not been initialized in the operation declarations file
      */
     @Override
-    public CloseableIterable<AnalyticOperationDetail> doOperation(final GetAllAnalyticOperation operation, final Context context, final Store store) throws OperationException {
+    public CloseableIterable<AnalyticOperationDetail> doOperation(final GetAllAnalyticOperations operation, final Context context, final Store store) throws OperationException {
         final CloseableIterable<AnalyticOperationDetail> ops = cache.getAllAnalyticOperations(context.getUser(), store.getProperties().getAdminAuth());
         return new WrappedCloseableIterable<>(IterableUtil.map(ops, new AddInputType()));
     }

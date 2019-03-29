@@ -1,15 +1,10 @@
 package uk.gov.gchq.gaffer.store.integration.analytic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -18,7 +13,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.analytic.AddAnalyticOperation;
 import uk.gov.gchq.gaffer.operation.analytic.AnalyticOperationDetail;
-import uk.gov.gchq.gaffer.operation.analytic.GetAllAnalyticOperation;
+import uk.gov.gchq.gaffer.operation.analytic.GetAllAnalyticOperations;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -26,9 +21,16 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.analytic.AddAnalyticOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.analytic.GetAllAnalyticOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class AnalyticOperationCacheIT {
     private static final String CACHE_NAME = "AnalyticOperation";
@@ -55,7 +57,7 @@ public class AnalyticOperationCacheIT {
     private GetAllAnalyticOperationHandler getAllAnalyticOperationHandler = new GetAllAnalyticOperationHandler();
     private AddAnalyticOperationHandler addAnalyticOperationHandler = new AddAnalyticOperationHandler();
     //private GetAllAnalyticOperationHandler getAllAnalyticOperationHandler1 = new GetAllAnalyticOperationHandler();
-    private GetAllAnalyticOperation get = new GetAllAnalyticOperation();
+    private GetAllAnalyticOperations get = new GetAllAnalyticOperations();
 
     @Before
     public void before() throws CacheOperationException {
@@ -98,7 +100,7 @@ public class AnalyticOperationCacheIT {
 
     private void shouldBeAbleToAddAnalyticOperationToCache() throws OperationException {
         // given
-        GetAllAnalyticOperation get = new GetAllAnalyticOperation.Builder().build();
+        GetAllAnalyticOperations get = new GetAllAnalyticOperations.Builder().build();
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(properties);
 
@@ -135,7 +137,7 @@ public class AnalyticOperationCacheIT {
                 .name("op")
                 .build();
 
-        GetAllAnalyticOperation get = new GetAllAnalyticOperation();
+        GetAllAnalyticOperations get = new GetAllAnalyticOperations();
 
         // when
         deleteAnalyticOperationHandler.doOperation(del, context, store);
@@ -163,7 +165,7 @@ public class AnalyticOperationCacheIT {
                 .score(0)
                 .build();
 
-        GetAllAnalyticOperation get = new GetAllAnalyticOperation();
+        GetAllAnalyticOperations get = new GetAllAnalyticOperations();
 
         // when
         new AddAnalyticOperationHandler().doOperation(add, context, store);
@@ -202,7 +204,7 @@ public class AnalyticOperationCacheIT {
                 .score(0)
                 .build();
 
-        GetAllAnalyticOperation get = new GetAllAnalyticOperation();
+        GetAllAnalyticOperations get = new GetAllAnalyticOperations();
 
         // when
         new AddAnalyticOperationHandler().doOperation(add, context, store);

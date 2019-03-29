@@ -18,22 +18,23 @@ package uk.gov.gchq.gaffer.operation.analytic;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.operation.analytic.serialisation.AnalyticOperationTypeReference;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
+
 import java.util.Map;
 
 /**
- * A {@link GetAllNamedOperations} is an {@link uk.gov.gchq.gaffer.operation.Operation}
+ * A {@link GetAllAnalyticOperations} is an {@link uk.gov.gchq.gaffer.operation.Operation}
  * for retrieving all {@link AnalyticOperation}s associated with a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Gets all available named operations")
-public class GetAllAnalyticOperation implements
+public class GetAllAnalyticOperations implements
         Output<CloseableIterable<AnalyticOperationDetail>> {
     private Map<String, String> options;
 
@@ -43,8 +44,8 @@ public class GetAllAnalyticOperation implements
     }
 
     @Override
-    public GetAllAnalyticOperation shallowClone() {
-        return new GetAllAnalyticOperation.Builder()
+    public GetAllAnalyticOperations shallowClone() {
+        return new GetAllAnalyticOperations.Builder()
                 .options(options)
                 .build();
     }
@@ -59,10 +60,10 @@ public class GetAllAnalyticOperation implements
         this.options = options;
     }
 
-    public static class Builder extends BaseBuilder<GetAllAnalyticOperation, Builder>
-            implements Output.Builder<GetAllAnalyticOperation, CloseableIterable<AnalyticOperationDetail>, Builder> {
+    public static class Builder extends BaseBuilder<GetAllAnalyticOperations, Builder>
+            implements Output.Builder<GetAllAnalyticOperations, CloseableIterable<AnalyticOperationDetail>, Builder> {
         public Builder() {
-            super(new GetAllAnalyticOperation());
+            super(new GetAllAnalyticOperations());
         }
     }
 }

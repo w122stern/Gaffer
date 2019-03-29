@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016-2019 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.operation.analytic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -5,6 +21,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -23,7 +40,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class AnalyticOperationDetail implements Serializable {
-    
+
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String operationName;
     private String inputType;
@@ -39,16 +56,16 @@ public class AnalyticOperationDetail implements Serializable {
     }
 
     public AnalyticOperationDetail(final String operationName, final String description, final String userId,
-                                final String operations, final List<String> readers,
-                                final List<String> writers, final Map<String, ParameterDetail> parameters,
-                                final Integer score) {
+                                   final String operations, final List<String> readers,
+                                   final List<String> writers, final Map<String, ParameterDetail> parameters,
+                                   final Integer score) {
         this(operationName, null, description, userId, operations, readers, writers, parameters, score);
     }
 
     public AnalyticOperationDetail(final String operationName, final String inputType, final String description, final String userId,
-                                final String operations, final List<String> readers,
-                                final List<String> writers, final Map<String, ParameterDetail> parameters,
-                                final Integer score) {
+                                   final String operations, final List<String> readers,
+                                   final List<String> writers, final Map<String, ParameterDetail> parameters,
+                                   final Integer score) {
         if (null == operations) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }

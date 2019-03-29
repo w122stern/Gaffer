@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.analytic.AddAnalyticOperation;
 import uk.gov.gchq.gaffer.operation.analytic.AnalyticOperationDetail;
-import uk.gov.gchq.gaffer.operation.analytic.GetAllAnalyticOperation;
+import uk.gov.gchq.gaffer.operation.analytic.GetAllAnalyticOperations;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -90,7 +90,7 @@ public class GetAllAnalyticOperationsHandlerTest {
         addAnalyticOperationHandler.doOperation(addAnalyticOperation, context, store);
 
         // When
-        CloseableIterable<AnalyticOperationDetail> allAnalyticOperationsList = getAllAnalyticOperationsHandler.doOperation(new GetAllAnalyticOperation(), context, store);
+        CloseableIterable<AnalyticOperationDetail> allAnalyticOperationsList = getAllAnalyticOperationsHandler.doOperation(new GetAllAnalyticOperations(), context, store);
 
         // Then
         assertEquals(1, Iterables.size(allAnalyticOperationsList));
@@ -109,7 +109,7 @@ public class GetAllAnalyticOperationsHandlerTest {
         addAnalyticOperationHandler.doOperation(addAnalyticOperation, context, store);
 
         // When
-        CloseableIterable<AnalyticOperationDetail> allAnalyticOperationsList = getAllAnalyticOperationsHandler.doOperation(new GetAllAnalyticOperation(), context, store);
+        CloseableIterable<AnalyticOperationDetail> allAnalyticOperationsList = getAllAnalyticOperationsHandler.doOperation(new GetAllAnalyticOperations(), context, store);
 
         // Then
         assertEquals(1, Iterables.size(allAnalyticOperationsList));
