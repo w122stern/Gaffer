@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.analytic;
 
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -26,6 +28,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.analytic.cache.AnalyticOperationCache;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 
 import java.util.Map;
 
@@ -54,6 +57,17 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
      */
     @Override
     public Void doOperation(final AddAnalyticOperation operation, final Context context, final Store store) throws OperationException {
+        final Map<String, ParameterDetail> params = operation.getParameters();
+        if (operation.getOperations().toArray()[0] instanceof NamedOperation) {
+            final NamedOperation nop = (NamedOperation) operation.getOperations().toArray()[0];
+            final NamedOperationCache namCache = new NamedOperationCache();
+            try {
+                final NamedOperationDetail nDetail = namCache.getFromCache(nop.getOperationName());
+                params.putAll(nDetail.getParameters());
+            } catch (CacheOperationFailedException e) {
+                throw new OperationException(e.getMessage(), e);
+            }
+        }
         try {
             final AnalyticOperationDetail analyticOperationDetail = new AnalyticOperationDetail.Builder()
                     .operation(operation.getOperationAsString())
@@ -63,6 +77,7 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
                     .writers(operation.getWriteAccessRoles())
                     .description(operation.getDescription())
                     .parameters(operation.getParameters())
+                    .header(operation.getHeader())
                     .score(operation.getScore())
                     .options(operation.getOptions())
                     .build();
@@ -84,7 +99,7 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
             for (final Map.Entry<String, ParameterDetail> parameterDetail : analyticOperationDetail.getParameters().entrySet()) {
                 String varName = "${" + parameterDetail.getKey() + "}";
                 if (!operationString.contains(varName)) {
-                    throw new OperationException("Parameter specified in AnalyticOperation doesn't occur in OperationChain string for " + varName);
+                    throw new OperationException("Parameter specified in AnalyticOperation doesn't occur in Operation string for " + varName);
                 }
             }
         }

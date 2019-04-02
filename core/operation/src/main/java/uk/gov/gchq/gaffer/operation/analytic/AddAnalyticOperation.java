@@ -47,7 +47,7 @@ import java.util.Map;
 
 import static java.util.Objects.isNull;
 
-@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations", "header"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Adds a new analytic")
 public class AddAnalyticOperation implements Operation, Operations<Operation> {
@@ -61,6 +61,7 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
     private Integer score;
+    private Map<String, String> header;
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -145,6 +146,15 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
         return parameters;
     }
 
+    @JsonSetter("header")
+    public void setHeader(final Map<String, String> header) {
+        this.header = header;
+    }
+
+    public Map<String, String> getHeader() {
+        return header;
+    }
+
     @Override
     public AddAnalyticOperation shallowClone() {
         return new AddAnalyticOperation.Builder()
@@ -155,6 +165,7 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
                 .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
+                .header(header)
                 .options(options)
                 .score(score)
                 .build();
@@ -189,7 +200,7 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
 
     @Override
     public void updateOperations(final Collection<Operation> operations) {
-        // ignore - Named operations will be updated when run instead
+        // ignore - Analytic operations will be updated when run instead
     }
 
     private Collection<Operation> getOperationsWithDefaultParams() {
@@ -218,7 +229,6 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
                 op = null;
             }
         }
-
         final Collection<Operation> operations;
         if (op instanceof Operations) {
             operations = ((OperationChain) op).getOperations();
@@ -279,6 +289,11 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
                 _getOp().setParameters(parameters);
             }
             parameters.put(name, detail);
+            return _self();
+        }
+
+        public AddAnalyticOperation.Builder header(final Map<String, String> header) {
+            _getOp().setHeader(header);
             return _self();
         }
 

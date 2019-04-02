@@ -51,6 +51,7 @@ public class AnalyticOperationDetail implements Serializable {
     private List<String> writeAccessRoles;
     private Map<String, ParameterDetail> parameters = Maps.newHashMap();
     private Map<String, String> options = Maps.newHashMap();
+    private Map<String, String> header = Maps.newHashMap();
     private Integer score;
 
     public AnalyticOperationDetail() {
@@ -59,14 +60,14 @@ public class AnalyticOperationDetail implements Serializable {
     public AnalyticOperationDetail(final String operationName, final String description, final String userId,
                                    final String operations, final List<String> readers,
                                    final List<String> writers, final Map<String, ParameterDetail> parameters,
-                                   final Integer score, final Map<String, String> options) {
-        this(operationName, null, description, userId, operations, readers, writers, parameters, score, options);
+                                   final Integer score, final Map<String, String> options, final Map<String, String> header) {
+        this(operationName, null, description, userId, operations, readers, writers, parameters, header, score, options);
     }
 
     public AnalyticOperationDetail(final String operationName, final String inputType, final String description, final String userId,
                                    final String operations, final List<String> readers,
                                    final List<String> writers, final Map<String, ParameterDetail> parameters,
-                                   final Integer score, final Map<String, String> options) {
+                                   final Map<String, String> header, final Integer score, final Map<String, String> options) {
         if (null == operations) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
@@ -83,6 +84,7 @@ public class AnalyticOperationDetail implements Serializable {
         this.readAccessRoles = readers;
         this.writeAccessRoles = writers;
         this.parameters = parameters;
+        this.header = header;
         this.score = score;
         this.options = options;
     }
@@ -129,6 +131,10 @@ public class AnalyticOperationDetail implements Serializable {
 
     public Map<String, String> getOptions() {
         return options;
+    }
+
+    public Map<String, String> getHeader() {
+        return header;
     }
 
     private String buildParamNameString(final String paramKey) {
@@ -241,6 +247,7 @@ public class AnalyticOperationDetail implements Serializable {
                 .append(readAccessRoles, op.readAccessRoles)
                 .append(writeAccessRoles, op.writeAccessRoles)
                 .append(parameters, op.parameters)
+                .append(header, op.header)
                 .append(score, op.score)
                 .append(options, op.options)
                 .isEquals();
@@ -256,6 +263,7 @@ public class AnalyticOperationDetail implements Serializable {
                 .append(readAccessRoles)
                 .append(writeAccessRoles)
                 .append(parameters)
+                .append(header)
                 .append(score)
                 .append(options)
                 .hashCode();
@@ -271,6 +279,7 @@ public class AnalyticOperationDetail implements Serializable {
                 .append("readAccessRoles", readAccessRoles)
                 .append("writeAccessRoles", writeAccessRoles)
                 .append("parameters", parameters)
+                .append("header", header)
                 .append("score", score)
                 .append("options", options)
                 .toString();
@@ -317,6 +326,7 @@ public class AnalyticOperationDetail implements Serializable {
         private List<String> readers;
         private List<String> writers;
         private Map<String, ParameterDetail> parameters;
+        private Map<String, String> header;
         private Integer score;
         private Map<String, String> options;
 
@@ -382,8 +392,13 @@ public class AnalyticOperationDetail implements Serializable {
             return this;
         }
 
+        public AnalyticOperationDetail.Builder header(final Map<String, String> header) {
+            this.header = header;
+            return this;
+        }
+
         public AnalyticOperationDetail build() {
-            return new AnalyticOperationDetail(operationName, inputType, description, creatorId, op, readers, writers, parameters, score, options);
+            return new AnalyticOperationDetail(operationName, inputType, description, creatorId, op, readers, writers, parameters, header, score, options);
         }
     }
 }
