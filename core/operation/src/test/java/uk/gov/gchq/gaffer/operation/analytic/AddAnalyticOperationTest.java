@@ -19,10 +19,12 @@ package uk.gov.gchq.gaffer.operation.analytic;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -31,21 +33,31 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation> {
     public static final String USER = "User";
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
+    private static final Operation NAMED_OP = new NamedOperation.Builder().name("NamTest").build();
 
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         final AddAnalyticOperation obj = new AddAnalyticOperation.Builder()
                 .operation(OPERATION_CHAIN)
-                .description("Test Named Operation")
+                .description("Test Analytic Operation")
                 .name("Test")
                 .overwrite()
                 .readAccessRoles(USER)
@@ -61,7 +73,7 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
         JsonAssert.assertEquals(String.format("{\n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.analytic.AddAnalyticOperation\",\n" +
                 "  \"operationName\" : \"Test\",\n" +
-                "  \"description\" : \"Test Named Operation\",\n" +
+                "  \"description\" : \"Test Analytic Operation\",\n" +
                 "  \"score\" : 0,\n" +
                 "  \"operation\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
@@ -84,7 +96,7 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
     public void builderShouldCreatePopulatedOperation() {
         AddAnalyticOperation AddAnalyticOperation = new AddAnalyticOperation.Builder()
                 .operation(OPERATION_CHAIN)
-                .description("Test Named Operation")
+                .description("Test Analytic Operation")
                 .name("Test")
                 .overwrite()
                 .readAccessRoles(USER)
@@ -98,7 +110,7 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
         }
         assertEquals("{\"class\":\"uk.gov.gchq.gaffer.operation.OperationChain\",\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\",\"input\":[{\"class\":\"uk.gov.gchq.gaffer.operation.data.EntitySeed\",\"vertex\":\"seed\"}]}]}", AddAnalyticOperation.getOperationAsString());
         assertEquals("Test", AddAnalyticOperation.getOperationName());
-        assertEquals("Test Named Operation", AddAnalyticOperation.getDescription());
+        assertEquals("Test Analytic Operation", AddAnalyticOperation.getDescription());
         assertEquals(Collections.singletonList(USER), AddAnalyticOperation.getReadAccessRoles());
         assertEquals(Collections.singletonList(USER), AddAnalyticOperation.getWriteAccessRoles());
     }
@@ -111,7 +123,7 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
 
         AddAnalyticOperation AddAnalyticOperation = new AddAnalyticOperation.Builder()
                 .operation(OPERATION_CHAIN)
-                .description("Test Named Operation")
+                .description("Test Analytic Operation")
                 .name("Test")
                 .overwrite(false)
                 .readAccessRoles(USER)
@@ -128,7 +140,7 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
         assertEquals("{\"class\":\"uk.gov.gchq.gaffer.operation.OperationChain\",\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\",\"input\":[{\"class\":\"uk.gov.gchq.gaffer.operation.data.EntitySeed\",\"vertex\":\"seed\"}]}]}"
                 , clone.getOperationAsString());
         assertEquals("Test", clone.getOperationName());
-        assertEquals("Test Named Operation", clone.getDescription());
+        assertEquals("Test Analytic Operation", clone.getDescription());
         assertEquals(2, (int) clone.getScore());
         assertFalse(clone.isOverwriteFlag());
         assertEquals(Collections.singletonList(USER), clone.getReadAccessRoles());
@@ -141,7 +153,7 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
         // Given
         final AddAnalyticOperation AddAnalyticOperation = new AddAnalyticOperation.Builder()
                 .operation("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"${testParameter}\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}")
-                .description("Test Named Operation")
+                .description("Test Analytic Operation")
                 .name("Test")
                 .overwrite(false)
                 .readAccessRoles(USER)
@@ -173,7 +185,7 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
         // Given
         final AddAnalyticOperation AddAnalyticOperation = new AddAnalyticOperation.Builder()
                 .operation("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"${testParameter}\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}")
-                .description("Test Named Operation")
+                .description("Test Analytic Operation")
                 .name("Test")
                 .overwrite(false)
                 .readAccessRoles(USER)
@@ -197,6 +209,35 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
         final GetAdjacentIds nestedOp = (GetAdjacentIds) operations.iterator().next();
         final List<? extends EntityId> input = Lists.newArrayList(nestedOp.getInput());
         assertEquals(Collections.singletonList(new EntitySeed(null)), input);
+    }
+
+    @Test
+    public void shouldRunNamedOperation() {
+        final AddAnalyticOperation AddAnalyticOperation = new AddAnalyticOperation.Builder()
+                .operation(NAMED_OP)
+                .description("Test Analytic Operation")
+                .name("Test")
+                .overwrite(false)
+                .readAccessRoles(USER)
+                .writeAccessRoles(USER)
+                .parameter("testParameter", new ParameterDetail.Builder()
+                        .description("the seed")
+                        .valueClass(String.class)
+                        .required(false)
+                        .build())
+                .score(2)
+                .build();
+
+        Collection<Operation> operations = AddAnalyticOperation.getOperations();
+
+        assertEquals(
+                Collections.singletonList(NamedOperation.class),
+                operations.stream().map(o -> o.getClass()).collect(Collectors.toList())
+        );
+        final NamedOperation nOp = (NamedOperation) operations.iterator().next();
+        assertEquals(nOp.getClass(), NAMED_OP.getClass());
+        System.out.println(nOp.toString());
+
     }
 
     @Override

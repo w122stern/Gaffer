@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -62,6 +62,7 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
     private Map<String, String> options;
     private Integer score;
     private Map<String, String> header;
+    private Map<String, String> outputType;
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -155,6 +156,15 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
         return header;
     }
 
+    @JsonSetter("outputType")
+    public void setOutputType(final Map<String, String> outputType) {
+        this.outputType = outputType;
+    }
+
+    public Map<String, String> getOutputType() {
+        return outputType;
+    }
+
     @Override
     public AddAnalyticOperation shallowClone() {
         return new AddAnalyticOperation.Builder()
@@ -166,6 +176,7 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
                 .header(header)
+                .outputType(outputType)
                 .options(options)
                 .score(score)
                 .build();
@@ -224,13 +235,13 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
             op = null;
         } else {
             try {
-                op = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
+                op = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), Operation.class);
             } catch (final Exception e) {
                 op = null;
             }
         }
         final Collection<Operation> operations;
-        if (op instanceof Operations) {
+        if (op instanceof Operations && !(op instanceof NamedOperation)) {
             operations = ((OperationChain) op).getOperations();
             return operations;
         } else {
@@ -294,6 +305,11 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
 
         public AddAnalyticOperation.Builder header(final Map<String, String> header) {
             _getOp().setHeader(header);
+            return _self();
+        }
+
+        public AddAnalyticOperation.Builder outputType(final Map<String, String> outputType) {
+            _getOp().setOutputType(outputType);
             return _self();
         }
 

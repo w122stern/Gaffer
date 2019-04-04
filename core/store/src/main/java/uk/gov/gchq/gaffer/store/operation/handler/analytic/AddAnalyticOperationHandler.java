@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.analytic;
 
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -28,7 +26,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.analytic.cache.AnalyticOperationCache;
-import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 
 import java.util.Map;
 
@@ -57,17 +54,6 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
      */
     @Override
     public Void doOperation(final AddAnalyticOperation operation, final Context context, final Store store) throws OperationException {
-        final Map<String, ParameterDetail> params = operation.getParameters();
-        if (operation.getOperations().toArray()[0] instanceof NamedOperation) {
-            final NamedOperation nop = (NamedOperation) operation.getOperations().toArray()[0];
-            final NamedOperationCache namCache = new NamedOperationCache();
-            try {
-                final NamedOperationDetail nDetail = namCache.getFromCache(nop.getOperationName());
-                params.putAll(nDetail.getParameters());
-            } catch (CacheOperationFailedException e) {
-                throw new OperationException(e.getMessage(), e);
-            }
-        }
         try {
             final AnalyticOperationDetail analyticOperationDetail = new AnalyticOperationDetail.Builder()
                     .operation(operation.getOperationAsString())
@@ -78,6 +64,7 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
                     .description(operation.getDescription())
                     .parameters(operation.getParameters())
                     .header(operation.getHeader())
+                    .outputType(operation.getOutputType())
                     .score(operation.getScore())
                     .options(operation.getOptions())
                     .build();
@@ -102,6 +89,22 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
                     throw new OperationException("Parameter specified in AnalyticOperation doesn't occur in Operation string for " + varName);
                 }
             }
+        }
+
+        if (null == analyticOperationDetail.getOutputType()) {
+            throw new OperationException("Missing outputType field in AddAnalyticOperation");
+        } else if (analyticOperationDetail.getOutputType().containsKey("output")) {
+            if (!analyticOperationDetail.getOutputType().get("output").equals("table") && !analyticOperationDetail.getOutputType().get("output").equals("graph")) {
+                throw new OperationException("OutputType: output does not equal either 'table' or 'graph' in AddAnalyticOperation");
+            }
+        } else {
+            throw new OperationException("OutputType: output field was not specified in AddAnalyticOperation");
+        }
+
+        if (null == analyticOperationDetail.getHeader()) {
+            throw new OperationException("Missing header field in AddAnalyticOperation");
+        } else if (!analyticOperationDetail.getHeader().containsKey("iconURL")) {
+            throw new OperationException("Header: iconURL field was not specified in AddAnalyticOperation");
         }
     }
 }

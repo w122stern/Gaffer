@@ -52,6 +52,7 @@ public class AnalyticOperationDetail implements Serializable {
     private Map<String, ParameterDetail> parameters = Maps.newHashMap();
     private Map<String, String> options = Maps.newHashMap();
     private Map<String, String> header = Maps.newHashMap();
+    private Map<String, String> outputType = Maps.newHashMap();
     private Integer score;
 
     public AnalyticOperationDetail() {
@@ -60,14 +61,15 @@ public class AnalyticOperationDetail implements Serializable {
     public AnalyticOperationDetail(final String operationName, final String description, final String userId,
                                    final String operations, final List<String> readers,
                                    final List<String> writers, final Map<String, ParameterDetail> parameters,
-                                   final Integer score, final Map<String, String> options, final Map<String, String> header) {
-        this(operationName, null, description, userId, operations, readers, writers, parameters, header, score, options);
+                                   final Integer score, final Map<String, String> options, final Map<String, String> header,
+                                   final Map<String, String> outputType) {
+        this(operationName, null, description, userId, operations, readers, writers, parameters, header, outputType, score, options);
     }
 
     public AnalyticOperationDetail(final String operationName, final String inputType, final String description, final String userId,
                                    final String operations, final List<String> readers,
                                    final List<String> writers, final Map<String, ParameterDetail> parameters,
-                                   final Map<String, String> header, final Integer score, final Map<String, String> options) {
+                                   final Map<String, String> header, final Map<String, String> outputType, final Integer score, final Map<String, String> options) {
         if (null == operations) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
@@ -85,6 +87,7 @@ public class AnalyticOperationDetail implements Serializable {
         this.writeAccessRoles = writers;
         this.parameters = parameters;
         this.header = header;
+        this.outputType = outputType;
         this.score = score;
         this.options = options;
     }
@@ -135,6 +138,10 @@ public class AnalyticOperationDetail implements Serializable {
 
     public Map<String, String> getHeader() {
         return header;
+    }
+
+    public Map<String, String> getOutputType() {
+        return outputType;
     }
 
     private String buildParamNameString(final String paramKey) {
@@ -248,6 +255,7 @@ public class AnalyticOperationDetail implements Serializable {
                 .append(writeAccessRoles, op.writeAccessRoles)
                 .append(parameters, op.parameters)
                 .append(header, op.header)
+                .append(outputType, op.outputType)
                 .append(score, op.score)
                 .append(options, op.options)
                 .isEquals();
@@ -264,6 +272,7 @@ public class AnalyticOperationDetail implements Serializable {
                 .append(writeAccessRoles)
                 .append(parameters)
                 .append(header)
+                .append(outputType)
                 .append(score)
                 .append(options)
                 .hashCode();
@@ -280,6 +289,7 @@ public class AnalyticOperationDetail implements Serializable {
                 .append("writeAccessRoles", writeAccessRoles)
                 .append("parameters", parameters)
                 .append("header", header)
+                .append("outputType", outputType)
                 .append("score", score)
                 .append("options", options)
                 .toString();
@@ -327,6 +337,7 @@ public class AnalyticOperationDetail implements Serializable {
         private List<String> writers;
         private Map<String, ParameterDetail> parameters;
         private Map<String, String> header;
+        private Map<String, String> outputType;
         private Integer score;
         private Map<String, String> options;
 
@@ -397,8 +408,13 @@ public class AnalyticOperationDetail implements Serializable {
             return this;
         }
 
+        public AnalyticOperationDetail.Builder outputType(final Map<String, String> outputType) {
+            this.outputType = outputType;
+            return this;
+        }
+
         public AnalyticOperationDetail build() {
-            return new AnalyticOperationDetail(operationName, inputType, description, creatorId, op, readers, writers, parameters, header, score, options);
+            return new AnalyticOperationDetail(operationName, inputType, description, creatorId, op, readers, writers, parameters, header, outputType, score, options);
         }
     }
 }
