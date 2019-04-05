@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.analytic;
 
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -54,6 +55,11 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
      */
     @Override
     public Void doOperation(final AddAnalyticOperation operation, final Context context, final Store store) throws OperationException {
+        for (Operation op : operation.getOperations()) {
+            if (op instanceof NamedOperation) {
+                operation.getParameters().putAll(((NamedOperation) op).getParameters());
+            }
+        }
         try {
             final AnalyticOperationDetail analyticOperationDetail = new AnalyticOperationDetail.Builder()
                     .operation(operation.getOperationAsString())
