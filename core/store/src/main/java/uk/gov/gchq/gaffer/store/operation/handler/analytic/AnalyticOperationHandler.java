@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 /**
  * Operation handler for {@link AnalyticOperation}. Analytic operations are resolved by
  * the {@code AnalyticOperationResolver} {@code GraphHook}.
- * If this handler is invoked then it means the named operation could not be resolved.
+ * If this handler is invoked then it means the analytic operation could not be resolved.
  */
 public class AnalyticOperationHandler implements OutputOperationHandler<AnalyticOperation<?, Object>, Object> {
     @Override

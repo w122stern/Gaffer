@@ -50,7 +50,7 @@ public class AnalyticOperationResolver implements GraphHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        resolveAnalyticOperations(opChain, context.getUser(), context);
+        resolveAnalyticOperations(opChain, context.getUser());
     }
 
     @Override
@@ -63,15 +63,14 @@ public class AnalyticOperationResolver implements GraphHook {
         return result;
     }
 
-    private void resolveAnalyticOperations(final Operations<?> operations, final User user, final Context context) {
+    private void resolveAnalyticOperations(final Operations<?> operations, final User user) {
         final List<Operation> updatedOperations = new ArrayList<>(operations.getOperations().size());
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof AnalyticOperation) {
-                updatedOperations.addAll(resolveAnalyticOperation((AnalyticOperation) operation, user, context));
+                updatedOperations.addAll(resolveAnalyticOperation((AnalyticOperation) operation, user));
             } else {
                 if (operation instanceof Operations) {
-                    NamedOperationResolver nor = new NamedOperationResolver();
-                    nor.preExecute(OperationChain.wrap(operation), context);
+                    resolveAnalyticOperations(((Operations<?>) operation), user);
                 }
                 updatedOperations.add(operation);
             }
@@ -79,7 +78,7 @@ public class AnalyticOperationResolver implements GraphHook {
         operations.updateOperations((List) updatedOperations);
     }
 
-    private List<Operation> resolveAnalyticOperation(final AnalyticOperation analyticOp, final User user, final Context context) {
+    private List<Operation> resolveAnalyticOperation(final AnalyticOperation analyticOp, final User user) {
         final AnalyticOperationDetail analyticOpDetail;
         try {
             analyticOpDetail = cache.getAnalyticOperation(analyticOp.getOperationName(), user);
@@ -92,7 +91,7 @@ public class AnalyticOperationResolver implements GraphHook {
         updateOperationInput(analyticOperation, analyticOp.getInput());
 
         // Call resolveAnalyticOperations again to check there are no nested analytic operations
-        resolveAnalyticOperations(analyticOperation, user, context);
+        resolveAnalyticOperations(analyticOperation, user);
         return analyticOperation.getOperations();
     }
 

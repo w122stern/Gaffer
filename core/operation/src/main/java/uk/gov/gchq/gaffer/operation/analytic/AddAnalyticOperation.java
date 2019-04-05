@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -235,14 +236,22 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
             op = null;
         } else {
             try {
-                op = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), Operation.class);
+                op = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
             } catch (final Exception e) {
-                op = null;
+                try {
+                    op = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), NamedOperation.class);
+                } catch (final Exception f) {
+                    op = null;
+                }
             }
         }
         final Collection<Operation> operations;
         if (op instanceof Operations && !(op instanceof NamedOperation)) {
             operations = ((OperationChain) op).getOperations();
+            return operations;
+        } else if (op instanceof NamedOperation) {
+            operations = ((NamedOperation) op).getOperations();
+            operations.add(op);
             return operations;
         } else {
             return Arrays.asList(op);

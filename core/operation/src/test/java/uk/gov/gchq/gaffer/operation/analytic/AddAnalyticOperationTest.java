@@ -237,7 +237,6 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
         final NamedOperation nOp = (NamedOperation) operations.iterator().next();
         assertEquals(nOp.getClass(), NAMED_OP.getClass());
         System.out.println(nOp.toString());
-
     }
 
     @Override

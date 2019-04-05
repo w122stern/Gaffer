@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -176,7 +177,11 @@ public class AnalyticOperationDetail implements Serializable {
         try {
             opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
         } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            try {
+                opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), NamedOperation.class);
+            } catch (final Exception f) {
+                throw new IllegalArgumentException(e.getMessage());
+            }
         }
 
         return opChain;
@@ -228,7 +233,12 @@ public class AnalyticOperationDetail implements Serializable {
         try {
             opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChainDAO.class);
         } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            try {
+                opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), NamedOperation.class);
+            }
+            catch (final Exception f) {
+                throw new IllegalArgumentException(e.getMessage());
+            }
         }
 
         return opChain;
