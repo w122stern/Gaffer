@@ -5,20 +5,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
-import uk.gov.gchq.koryphe.function.FunctionTest;
 import uk.gov.gchq.koryphe.util.TimeUnit;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
+public class MaskTimestampSetByTimeRangeTest {
 
     private Instant instant;
     private MaskTimestampSetByTimeRange maskTimestampSetByTimeRange = new MaskTimestampSetByTimeRange();
@@ -116,30 +112,5 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
         timestampSet.add(instant.plus(Duration.ofDays(200L)));
         timestampSet.add(instant.plus(Duration.ofDays(300L)));
         return timestampSet;
-    }
-
-    @Override
-    protected Function getInstance() {
-        return maskTimestampSetByTimeRange;
-    }
-
-    @Override
-    protected Class<? extends Function> getFunctionClass() {
-        return MaskTimestampSetByTimeRange.class;
-    }
-
-    @Override
-    public void shouldJsonSerialiseAndDeserialise() throws IOException {
-        // Given
-        final MaskTimestampSetByTimeRange maskTimestampSetByTimeRange = new MaskTimestampSetByTimeRange(1l, 2l);
-
-        // When
-        final String json = new String(JSONSerialiser.serialise(maskTimestampSetByTimeRange));
-        MaskTimestampSetByTimeRange deserialisedMaskTimestampSetByTimeRange = JSONSerialiser.deserialise(json, MaskTimestampSetByTimeRange.class);
-
-        // Then
-        assertEquals(maskTimestampSetByTimeRange, deserialisedMaskTimestampSetByTimeRange);
-        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.time.function.MaskTimestampSetByTimeRange\",\"startTime\":1,\"endTime\":2,\"timeUnit\":\"MILLISECOND\"}"
-                , json);
     }
 }

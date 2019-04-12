@@ -70,7 +70,7 @@ public class GetAllAnalyticOperationHandler implements OutputOperationHandler<Ge
 
         @Override
         public AnalyticOperationDetail apply(final AnalyticOperationDetail analyticOp) {
-            return /*resolveParameters*/(addInput(analyticOp));
+            return resolveParameters(addInput(analyticOp));
         }
 
         private AnalyticOperationDetail addInput(final AnalyticOperationDetail analyticOp) {

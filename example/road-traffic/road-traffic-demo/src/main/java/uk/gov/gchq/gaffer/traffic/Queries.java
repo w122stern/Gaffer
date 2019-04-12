@@ -41,6 +41,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.analytic.AddAnalyticOperation;
 import uk.gov.gchq.gaffer.operation.analytic.AnalyticOperation;
+import uk.gov.gchq.gaffer.operation.analytic.GetAllAnalyticOperations;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -287,6 +288,9 @@ public class Queries {
         final GetAllElements getElements = new GetAllElements.Builder()
                 .build();
 
+        final GetAllAnalyticOperations getAna = new GetAllAnalyticOperations.Builder()
+                .build();
+
         final AddAnalyticOperation addAnalyticOperation = new AddAnalyticOperation.Builder()
                 .name("analyticTest")
                 .operation("{\n" +
@@ -300,6 +304,7 @@ public class Queries {
                 .build();
 
         graph.execute(addAnalyticOperation, user);
+        graph.execute(getAna, user);
 
         final AnalyticOperation runAnalyticOperation = new AnalyticOperation.Builder<EntityId, CloseableIterable<? extends Element>>()
                 .name("analyticTest")
