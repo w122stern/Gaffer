@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.operation.handler.analytic;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
@@ -66,8 +67,13 @@ public class GetAllAnalyticOperationHandler implements OutputOperationHandler<Ge
     }
 
     private static class AddInputType implements Function<AnalyticOperationDetail, AnalyticOperationDetail> {
+
         @Override
         public AnalyticOperationDetail apply(final AnalyticOperationDetail analyticOp) {
+            return /*resolveParameters*/(addInput(analyticOp));
+        }
+
+        private AnalyticOperationDetail addInput(final AnalyticOperationDetail analyticOp) {
             if (null != analyticOp && null == analyticOp.getInputType()) {
                 try {
                     final Operation op = analyticOp.getOperationWithDefaultParams();
@@ -79,6 +85,20 @@ public class GetAllAnalyticOperationHandler implements OutputOperationHandler<Ge
                     }
                 } catch (final Exception e) {
                     // ignore - just don't add the input type
+                }
+            }
+            return analyticOp;
+        }
+
+        private AnalyticOperationDetail resolveParameters(final AnalyticOperationDetail analyticOp) {
+            if (null != analyticOp && analyticOp.getOperations() != null) {
+                try {
+                    final Operation op = analyticOp.getOperationWithDefaultParams();
+                    if (op instanceof NamedOperation) {
+                        analyticOp.setParameters(((NamedOperation) op).getParameters());
+                    }
+                } catch (final Exception e) {
+                    // ignore - no need to map parameters
                 }
             }
             return analyticOp;

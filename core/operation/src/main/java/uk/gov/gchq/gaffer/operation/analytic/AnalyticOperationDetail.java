@@ -129,6 +129,10 @@ public class AnalyticOperationDetail implements Serializable {
         return parameters;
     }
 
+    public void setParameters(Map<String, ParameterDetail> parameters) {
+        this.parameters = parameters;
+    }
+
     public Integer getScore() {
         return score;
     }
@@ -235,8 +239,7 @@ public class AnalyticOperationDetail implements Serializable {
         } catch (final Exception e) {
             try {
                 opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), NamedOperation.class);
-            }
-            catch (final Exception f) {
+            } catch (final Exception f) {
                 throw new IllegalArgumentException(e.getMessage());
             }
         }
@@ -294,11 +297,11 @@ public class AnalyticOperationDetail implements Serializable {
                 .appendSuper(super.toString())
                 .append("inputType", inputType)
                 .append("creatorId", creatorId)
-                .append("operations", operations)
+                .append("operation", operations)
                 .append("readAccessRoles", readAccessRoles)
                 .append("writeAccessRoles", writeAccessRoles)
                 .append("parameters", parameters)
-                .append("header", header)
+                .append("metaData", header)
                 .append("outputType", outputType)
                 .append("score", score)
                 .append("options", options)
