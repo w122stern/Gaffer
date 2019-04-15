@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -39,6 +40,7 @@ import java.util.List;
 @JsonPropertyOrder(alphabetic = true)
 public class AnalyticOperationResolver implements GraphHook {
     private final AnalyticOperationCache cache;
+    private AnalyticOperation anaOp;
 
     public AnalyticOperationResolver() {
         this(new AnalyticOperationCache());
@@ -67,10 +69,14 @@ public class AnalyticOperationResolver implements GraphHook {
         final List<Operation> updatedOperations = new ArrayList<>(operations.getOperations().size());
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof AnalyticOperation) {
+                anaOp = (AnalyticOperation) operation;
                 updatedOperations.addAll(resolveAnalyticOperation((AnalyticOperation) operation, user));
             } else {
                 if (operation instanceof Operations) {
                     resolveAnalyticOperations(((Operations<?>) operation), user);
+                    if (null != anaOp && operation instanceof NamedOperation) {
+                        ((NamedOperation) operation).setParameters(anaOp.getParameters());
+                    }
                 }
                 updatedOperations.add(operation);
             }

@@ -274,7 +274,7 @@ public class Queries {
         final Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put("result-limit", 5);
         final Map<String, Object> paramMap2 = Maps.newHashMap();
-        paramMap.put("result-limit", 2);
+        paramMap2.put("result-limit", 2);
         final Map<String, String> headerMap = Maps.newHashMap();
         headerMap.put("iconURL", "pic.jpg");
         final Map<String, String> outputMap = Maps.newHashMap();
