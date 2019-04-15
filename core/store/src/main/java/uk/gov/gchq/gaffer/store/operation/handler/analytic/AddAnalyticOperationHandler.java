@@ -63,7 +63,7 @@ public class AddAnalyticOperationHandler implements OperationHandler<AddAnalytic
                     .writers(operation.getWriteAccessRoles())
                     .description(operation.getDescription())
                     .parameters(operation.getParameters())
-                    .header(operation.getHeader())
+                    .header(operation.getMetaData())
                     .outputType(operation.getOutputType())
                     .score(operation.getScore())
                     .options(operation.getOptions())

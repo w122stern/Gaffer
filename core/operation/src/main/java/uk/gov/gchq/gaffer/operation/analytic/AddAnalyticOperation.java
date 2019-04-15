@@ -48,7 +48,7 @@ import java.util.Map;
 
 import static java.util.Objects.isNull;
 
-@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations", "header"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations", "metaData"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Adds a new analytic")
 public class AddAnalyticOperation implements Operation, Operations<Operation> {
@@ -62,7 +62,7 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
     private Integer score;
-    private Map<String, String> header;
+    private Map<String, String> metaData;
     private Map<String, String> outputType;
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
@@ -148,13 +148,13 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
         return parameters;
     }
 
-    @JsonSetter("header")
-    public void setHeader(final Map<String, String> header) {
-        this.header = header;
+    @JsonSetter("metaData")
+    public void setMetaData(final Map<String, String> metaData) {
+        this.metaData = metaData;
     }
 
-    public Map<String, String> getHeader() {
-        return header;
+    public Map<String, String> getMetaData() {
+        return metaData;
     }
 
     @JsonSetter("outputType")
@@ -176,7 +176,7 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
                 .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
-                .header(header)
+                .metaData(metaData)
                 .outputType(outputType)
                 .options(options)
                 .score(score)
@@ -312,8 +312,8 @@ public class AddAnalyticOperation implements Operation, Operations<Operation> {
             return _self();
         }
 
-        public AddAnalyticOperation.Builder header(final Map<String, String> header) {
-            _getOp().setHeader(header);
+        public AddAnalyticOperation.Builder metaData(final Map<String, String> metaData) {
+            _getOp().setMetaData(metaData);
             return _self();
         }
 

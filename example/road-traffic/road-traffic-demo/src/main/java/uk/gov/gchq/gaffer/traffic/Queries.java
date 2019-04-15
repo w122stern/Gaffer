@@ -275,8 +275,8 @@ public class Queries {
         paramMap.put("result-limit", 5);
         final Map<String, Object> paramMap2 = Maps.newHashMap();
         paramMap2.put("result-limit", 2);
-        final Map<String, String> headerMap = Maps.newHashMap();
-        headerMap.put("iconURL", "pic.jpg");
+        final Map<String, String> metaData = Maps.newHashMap();
+        metaData.put("iconURL", "pic.jpg");
         final Map<String, String> outputMap = Maps.newHashMap();
         outputMap.put("output", "table");
 
@@ -299,7 +299,7 @@ public class Queries {
                         "   \"parameters\": { \"result-limit\": 5 }\n" +
                         "}")
                 .overwrite()
-                .header(headerMap)
+                .metaData(metaData)
                 .outputType(outputMap)
                 .build();
 
