@@ -480,7 +480,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                 .build();
     }
 
-
+    @Override
     public AddAnalyticOperation AddAnalyticOperation() {
         String USER = "User";
         OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
