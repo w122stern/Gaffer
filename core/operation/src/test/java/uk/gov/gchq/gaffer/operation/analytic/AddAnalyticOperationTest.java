@@ -121,6 +121,12 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
         Map<String, ParameterDetail> parameters = new HashMap<>();
         parameters.put("testParameter", mock(ParameterDetail.class));
 
+        Map<String, String> metaData = new HashMap<>();
+        metaData.put("testHeader", "testString");
+
+        Map<String, String> outputType = new HashMap<>();
+        outputType.put("testOutputType", "testString");
+
         AddAnalyticOperation AddAnalyticOperation = new AddAnalyticOperation.Builder()
                 .operation(OPERATION_CHAIN)
                 .description("Test Analytic Operation")
@@ -129,6 +135,8 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
                 .parameters(parameters)
+                .metaData(metaData)
+                .outputType(outputType)
                 .score(2)
                 .build();
 
@@ -146,6 +154,8 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
         assertEquals(Collections.singletonList(USER), clone.getReadAccessRoles());
         assertEquals(Collections.singletonList(USER), clone.getWriteAccessRoles());
         assertEquals(parameters, clone.getParameters());
+        assertEquals(metaData, clone.getMetaData());
+        assertEquals(outputType, clone.getOutputType());
     }
 
     @Test
@@ -213,6 +223,7 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
 
     @Test
     public void shouldRunNamedOperation() {
+        // Given
         final AddAnalyticOperation AddAnalyticOperation = new AddAnalyticOperation.Builder()
                 .operation(NAMED_OP)
                 .description("Test Analytic Operation")
@@ -228,8 +239,10 @@ public class AddAnalyticOperationTest extends OperationTest<AddAnalyticOperation
                 .score(2)
                 .build();
 
+        // When
         Collection<Operation> operations = AddAnalyticOperation.getOperations();
 
+        // Then
         assertEquals(
                 Collections.singletonList(NamedOperation.class),
                 operations.stream().map(o -> o.getClass()).collect(Collectors.toList())
