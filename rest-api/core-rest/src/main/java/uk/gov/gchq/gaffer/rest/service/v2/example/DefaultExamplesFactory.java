@@ -352,6 +352,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         return op;
     }
 
+
     @Override
     public AddElements addElements() {
         final AddElements op = new AddElements();
@@ -483,8 +484,6 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     public AddAnalyticOperation AddAnalyticOperation() {
         String USER = "User";
         OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
-//        Map<String, ParameterDetail> parameters = new HashMap<>();
-//        parameters.put("testParameter", mock(ParameterDetail.class));
 
         Map<String, String> metaData = new HashMap<>();
         metaData.put("iconURL", "example.png");
@@ -492,7 +491,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         Map<String, String> outputType = new HashMap<>();
         outputType.put("output", "table");
 
-        AddAnalyticOperation a1 = new AddAnalyticOperation.Builder()
+        return new AddAnalyticOperation.Builder()
                 .operation(OPERATION_CHAIN)
                 .description("Adds an Example Analytic Operation")
                 .name("Example Analytic Operation")
@@ -503,7 +502,6 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                 .outputType(outputType)
                 .score(2)
                 .build();
-        return a1;
     }
 
     @Override
